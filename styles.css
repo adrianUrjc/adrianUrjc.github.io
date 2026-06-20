@@ -1,0 +1,608 @@
+/* =======================================================================
+   ESTILOS — Portfolio jugable de Adrián Gómez-Lobo Núñez
+   Estructura: este archivo va enlazado desde index.html (<link>).
+   ======================================================================= */
+:root {
+    /* ----- Paleta base (el cielo cambia por zona, ver --z*-* abajo) ----- */
+    --ink: #0c0a14;
+    --paper: #f4eee2;
+    --char: #ffd166;
+    --char-dark: #1b1726;
+
+    /* Acentos por zona (videojuegos / herramientas / concept) */
+    --z1-a: #ff5d73;
+    --z1-b: #ffb05c;
+    /* videojuegos: cálido, vibrante */
+    --z2-a: #36c5f0;
+    --z2-b: #7b6cff;
+    /* unity tools: técnico, frío */
+    --z3-a: #b98cff;
+    --z3-b: #ffa6e0;
+    /* concept: onírico, pastel */
+
+    --accent: var(--z1-a);
+    /* acento activo, lo cambia el JS */
+    --accent2: var(--z1-b);
+
+    --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+html {
+    scroll-behavior: auto
+}
+
+body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+}
+
+/* El "stage" es la ventana de juego: fija, ocupa todo el viewport.
+   El scroll de la página mueve el mundo horizontalmente. */
+#stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1
+}
+
+/* ---------- Cielo: 3 capas que se cruzan según la zona ---------- */
+.sky {
+    position: absolute;
+    inset: 0;
+    transition: opacity .8s ease
+}
+
+.sky--1 {
+    background: linear-gradient(180deg, #2a1a3e 0%, #6b2d5c 55%, #c8536b 100%);
+    opacity: 1
+}
+
+.sky--2 {
+    background: linear-gradient(180deg, #0a2540 0%, #1d4e89 55%, #3a86b8 100%);
+    opacity: 0
+}
+
+.sky--3 {
+    background: linear-gradient(180deg, #2d1b45 0%, #5e4b8b 55%, #b98cc4 100%);
+    opacity: 0
+}
+
+/* Soles/lunas decorativas */
+.orb {
+    position: absolute;
+    top: 12%;
+    left: 70%;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff6e0, #ffcf8b);
+    filter: blur(.3px);
+    box-shadow: 0 0 80px 20px rgba(255, 210, 140, .35)
+}
+
+/* ---------- Capas de parallax (siluetas dibujadas con CSS) ---------- */
+.layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    will-change: transform
+}
+
+.layer-far {
+    z-index: 2
+}
+
+.layer-mid {
+    z-index: 3
+}
+
+.hills {
+    position: absolute;
+    bottom: 18vh;
+    display: flex;
+    align-items: flex-end;
+    gap: 0
+}
+
+.hill {
+    width: 340px;
+    height: 200px;
+    background: rgba(0, 0, 0, .25);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    margin: 0 -40px
+}
+
+.layer-mid .hill {
+    height: 280px;
+    width: 420px;
+    background: rgba(0, 0, 0, .4)
+}
+
+/* ---------- Suelo ---------- */
+.ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 18vh;
+    background: linear-gradient(180deg, var(--char-dark), #000);
+    z-index: 5
+}
+
+.ground::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--accent);
+    opacity: .8;
+    transition: background .6s ease
+}
+
+/* ---------- Mundo: contenedor que viaja en X (postes de proyecto) ---------- */
+#world {
+    position: absolute;
+    bottom: 18vh;
+    left: 0;
+    height: 40vh;
+    z-index: 4;
+    will-change: transform
+}
+
+.post {
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    height: 120px;
+    background: var(--char-dark);
+    display: flex;
+    justify-content: center
+}
+
+.post .flag {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    width: 78px;
+    padding: 6px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    color: #fff;
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 86% 50%, 100% 100%, 0 100%);
+    text-transform: uppercase
+}
+
+/* =======================================================================
+   PERSONAJE: dos sprite sheets (idle + andar)
+   #character es un punto-ancla (0x0) situado en los PIES del personaje.
+   Cada capa (.walk / .idle) se dimensiona y desplaza con calc() a partir de
+   --ch (alto del personaje en pantalla) usando las medidas reales de cada
+   hoja, así idle y andar quedan al mismo tamaño y alineados, sin saltos.
+   Ambas hojas: 8000 px de ancho, 32 frames en 1 fila (bajo el límite de
+   textura de 8192 px que tienen muchas GPUs).
+     andar → 8000x213 (frame 250x213)
+     idle  → 8000x190 (frame 250x190)
+   ======================================================================= */
+#character {
+    position: fixed;
+    bottom: 18vh;
+    left: 26%;
+    z-index: 6;
+    width: 0;
+    height: 0;
+    --ch: 150px
+}
+
+/* alto del personaje EN PANTALLA */
+#character.flip {
+    transform: scaleX(-1)
+}
+
+/* gira alrededor del ancla = centro del personaje */
+#character .sprite {
+    position: absolute;
+    background-repeat: no-repeat
+}
+
+/* ---- Capa ANDAR ---- */
+#character .walk {
+    width: calc(1.2136 * var(--ch));
+    height: calc(1.0340 * var(--ch));
+    left: calc(-0.7573 * var(--ch));
+    bottom: calc(-0.0340 * var(--ch));
+    background-image: url('assets/sprites/UncleBellyAnimations/WalkSpriteSheet.png');
+    background-size: calc(32 * 100%) 100%;
+    background-position-y: 0%;
+    opacity: 0;
+    /* visible solo al andar */
+}
+
+/* ---- Capa IDLE ---- */
+#character .idle {
+    width: calc(1.3812 * var(--ch));
+    height: calc(1.0497 * var(--ch));
+    left: calc(-0.6989 * var(--ch));
+    bottom: calc(-0.0497 * var(--ch));
+    background-image: url('assets/sprites/UncleBellyAnimations/IdleSpriteSheet.png');
+    background-size: calc(32 * 100%) 100%;
+    background-position-y: 0%;
+}
+
+/* Quieto → se ve idle; en movimiento → se ve andar */
+#character.walking .idle {
+    opacity: 0
+}
+
+#character.walking .walk {
+    opacity: 1
+}
+
+/* Las animaciones (recorrer los 32 frames) las controla main.js poniendo
+   background-position-x por JS. Es 100% fiable: no depende de steps() ni de
+   cómo el navegador interprete las animaciones CSS. Aquí solo dejamos el
+   tamaño/posición de cada capa y su hoja. */
+
+/* Polvo bajo los pies al andar */
+.dust {
+    position: fixed;
+    bottom: 18vh;
+    left: 24%;
+    z-index: 5;
+    width: 30px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .18);
+    opacity: 0;
+    filter: blur(2px)
+}
+
+#character.walking~.dust {
+    animation: puff .42s ease-out infinite
+}
+
+@keyframes puff {
+    0% {
+        opacity: .4;
+        transform: scale(.6) translateX(0)
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.4) translateX(-22px)
+    }
+}
+
+/* ---------- HUD ---------- */
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    pointer-events: none
+}
+
+.hud .name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -.01em
+}
+
+.hud .zone {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-left: auto;
+    transition: color .6s ease
+}
+
+.progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, .08);
+    z-index: 11
+}
+
+.progress .bar {
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: background .6s ease
+}
+
+/* Pista de scroll (abajo) */
+.hint {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: rgba(255, 255, 255, .6);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity .4s ease
+}
+
+.hint .key {
+    border: 1px solid rgba(255, 255, 255, .3);
+    border-radius: 4px;
+    padding: 2px 7px
+}
+
+/* ---------- Tarjeta de proyecto (el "pop-up") ---------- */
+.card {
+    position: fixed;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%) translateX(40px);
+    z-index: 12;
+    width: min(420px, 86vw);
+    background: rgba(16, 12, 28, .82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 18px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .45s ease, transform .45s cubic-bezier(.2, .8, .2, 1)
+}
+
+.card.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto
+}
+
+.card .media {
+    height: 190px;
+    background: #000 center/cover no-repeat;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.card .media .placeholder {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, .4);
+    letter-spacing: .1em;
+    text-align: center;
+    padding: 0 20px
+}
+
+.card .badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #0c0a14
+}
+
+.card .body {
+    padding: 20px 22px 22px
+}
+
+.card h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -.02em;
+    line-height: 1.05
+}
+
+.card .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, .55);
+    margin: 6px 0 12px;
+    letter-spacing: .04em
+}
+
+.card p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .82)
+}
+
+.card .links {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap
+}
+
+.card .links a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    color: #0c0a14;
+    background: var(--accent);
+    transition: transform .15s ease
+}
+
+.card .links a.ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(255, 255, 255, .25)
+}
+
+.card .links a:hover {
+    transform: translateY(-2px)
+}
+
+/* ---------- Intro ---------- */
+#intro {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    transition: opacity .6s ease
+}
+
+/* Fuerza a la intro a desaparecer por completo cuando se pulsa el botón */
+#intro.hide {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transition: opacity 0.5s ease; /* Para que desaparezca con un efecto suave */
+}
+
+#intro h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(36px, 8vw, 76px);
+    letter-spacing: -.03em;
+    text-align: center;
+    line-height: .98
+}
+
+#intro h1 span {
+    background: linear-gradient(90deg, var(--z1-a), var(--z2-a), var(--z3-a));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent
+}
+
+#intro .sub {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .55)
+}
+
+#start {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #0c0a14;
+    background: linear-gradient(90deg, var(--z1-a), var(--z1-b));
+    transition: transform .15s ease, box-shadow .2s ease
+}
+
+#start:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px -8px var(--z1-a)
+}
+
+#start:focus-visible,
+.links a:focus-visible,
+#toEnd:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px
+}
+
+/* Botón "ir al CV / final" */
+#toEnd {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    z-index: 13;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    background: rgba(0, 0, 0, .3);
+    color: var(--paper);
+    text-decoration: none;
+    pointer-events: auto
+}
+
+/* El spacer invisible da "longitud" de scroll a la página */
+#scroll-spacer {
+    position: relative;
+    z-index: 0
+}
+
+/* Accesibilidad: respetar reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+    #character .sprite {
+        animation: none !important
+    }
+
+    .card {
+        transition: opacity .2s linear
+    }
+}
+
+/* Móvil */
+@media (max-width:600px) {
+    #character {
+        left: 18%;
+        --ch: 115px
+    }
+
+    .card {
+        right: 50%;
+        transform: translate(50%, 30px);
+        top: auto;
+        bottom: 24vh;
+        width: 88vw
+    }
+
+    .card.show {
+        transform: translate(50%, 0)
+    }
+
+    .card .media {
+        height: 150px
+    }
+}
