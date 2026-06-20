@@ -6,25 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adrián Gómez-Lobo Núñez — Game Developer</title>
 
-  <!-- ===== Open Graph: cómo se ve al compartir en LinkedIn / Twitter ===== -->
   <meta property="og:title" content="Adrián Gómez-Lobo Núñez — Game Developer">
   <meta property="og:description" content="Portfolio jugable: videojuegos, herramientas para Unity y concept art.">
   <meta property="og:type" content="website">
 
-  <!-- Fuentes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- Estilos (módulo aparte) -->
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <!-- ====================== INTRO / PANTALLA DE INICIO ====================== -->
   <div id="intro">
     <div class="sub">Game Developer · Portfolio</div>
     <h1><br><span>Adrián Gómez-Lobo Núñez</span></h1>
@@ -32,61 +26,38 @@
     <div class="sub" style="opacity:.5; font-size:11px">Desplázate para avanzar</div>
   </div>
 
-  <!-- ====================== ESCENARIO (ventana de juego) ====================== -->
-  <div id="stage" aria-hidden="true">
-    <div class="sky sky--1"></div>
-    <div class="sky sky--2"></div>
-    <div class="sky sky--3"></div>
+  <div id="stage" data-zone="videojuegos" aria-hidden="true">
+    
     <div class="orb"></div>
 
-    <div class="layer layer-far">
-      <div class="hills">
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-      </div>
-    </div>
-    <div class="layer layer-mid">
-      <div class="hills">
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-        <div class="hill"></div>
-      </div>
-    </div>
-
-    <!-- Postes/banderas que marcan cada proyecto (los coloca el JS) -->
-    <div id="world"></div>
-
+    <div class="layer layer-far"></div>
+    <div class="layer layer-mid"></div>
+    <div class="layer layer-close"></div> 
+    
     <div class="ground"></div>
 
-    <!-- ===== PERSONAJE: dos capas de sprite (andar + idle) ===== -->
+    <div id="world"></div>
+
     <div id="character">
       <canvas class="idle"></canvas>
       <canvas class="walk"></canvas>
     </div>
+    
     <div class="dust"></div>
 
-    <!-- HUD -->
     <div class="progress">
       <div class="bar"></div>
     </div>
+    
     <div class="hud">
       <span class="name">Adrián Gómez-Lobo Núñez</span>
+      <a id="toEnd" href="#" title="Saltar al final">CV / Contacto ⏭</a>
       <span class="zone">Inicio</span>
     </div>
-    <a id="toEnd" href="#" title="Saltar al final">CV / Contacto ⏭</a>
+    
     <div class="hint"><span class="key">scroll</span> avanzar por el nivel</div>
   </div>
 
-  <!-- Tarjeta de proyecto (una sola, el JS la rellena según el proyecto cercano) -->
   <div class="card" id="card" role="dialog" aria-live="polite">
     <div class="media"><span class="badge"></span><span class="placeholder"></span></div>
     <div class="body">
@@ -97,10 +68,8 @@
     </div>
   </div>
 
-  <!-- Spacer que define cuánto se puede hacer scroll -->
   <div id="scroll-spacer"></div>
 
-  <!-- Scripts (módulos aparte). projects.js primero: define los datos que usa main.js -->
   <script src="projects.js"></script>
   <script src="main.js"></script>
 </body>

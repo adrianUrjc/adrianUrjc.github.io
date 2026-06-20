@@ -15,40 +15,47 @@ const projects = [
     },
 
     {
-        zone: "videojuegos", at: 0.30, tag: "Juego", title: "Deep Within",
+        zone: "videojuegos", at: 0.32, tag: "Juego", title: "Deep Within",
         meta: "Unity · C# · 2024", img: "assets/videojuegos/PortadaDeepWithin.png",
         desc: "Averigua qué misterios depara el interior de las paredes de esta escuela abandonada, y enfréntate a tu pasado. No se garantiza tu seguridad...",
         links: [{ t: "Jugar", u: "https://bluecario123.itch.io/deep-within" }, { t: "Itch.io", u: "https://drakon04.itch.io", ghost: true }]
     },
 
     {
-        zone: "videojuegos", at: 0.46, tag: "Juego", title: "Time Bender",
+        zone: "videojuegos", at: 0.48, tag: "Juego", title: "Time Bender",
         meta: "Unity · C# · 2025", img: "assets/videojuegos/PortadaTimeBender.png",
         desc: "El juego en el que el tiempo es nuestro. Utiliza tus poderes para rebobinar o adelantar el tiempo",
         links: [{ t: "Jugar", u: "https://alba1212.itch.io/time-bender" }, { t: "Itch.io", u: "https://drakon04.itch.io", ghost: true }]
     },
+     {
+        zone: "videojuegos", at: 0.64, tag: "Juego", title: "Legado de Sangre",
+        meta: "Unity · C# · 2025-26", img: "assets/videojuegos/PortadaLegadoSangre.png",
+        desc: "Intenta sobrevivir 5 noches en la mansión encantada de tu familia.",
+        links: [{ t: "Jugar", u: "https://bollychaos22.itch.io/legado-de-sangre" }, { t: "Itch.io", u: "https://drakon04.itch.io", ghost: true }]
+    },
+
 
     // ----- ZONA 2: HERRAMIENTAS PARA UNITY -----
     {
-        zone: "unity", at: 0.64, tag: "Herramienta", title: "Group Values Load System",
+        zone: "unity", at: 0.80, tag: "Herramienta", title: "Group Values Load System",
         meta: "Unity Editor · C# · Package", img: "assets/videojuegos/PortadaGroupValues.png",
-        desc: "Una herramienta que hiciste para acelerar workflows. Explica el problema que resuelve.",
-        links: [{ t: "Documentación", u: "#" }, { t: "AssetStore", u: "https://assetstore.unity.com/packages/tools/painting/group-values-load-system-371056", ghost: true }]
+        desc: "A flexible and scalable data management tool for Unity that replaces PlayerPrefs with a structured, type-safe save system. Store data in organized ScriptableObject-based containers.",
+        links: [{ t: "AssetStore", u: "https://assetstore.unity.com/packages/tools/painting/group-values-load-system-371056", ghost: true }]
     },
 
-    {
-        zone: "unity", at: 0.82, tag: "Herramienta", title: "Asset / Sistema reutilizable",
-        meta: "Unity · Editor Scripting", img: "",
-        desc: "Sistema modular, generador procedural, etc. Enfócate en el valor técnico.",
-        links: [{ t: "Ver", u: "#" }]
-    },
+    // { aun no
+    //     zone: "unity", at: 0.82, tag: "Herramienta", title: "Graph Generator",
+    //     meta: "Unity · Editor Scripting", img: "",
+    //     desc: "Sistema modular, generador procedural, etc. Enfócate en el valor técnico.",
+    //     links: [{ t: "Ver", u: "#" }]
+    // },
 
     // ----- ZONA 3: CONCEPT -----
     {
         zone: "concept", at: 1, tag: "Concept", title: "Concept Art / Prototipos",
         meta: "Diseño · Prototipado", img: "",
         desc: "Bocetos, mundos, mecánicas exploradas. Un vistazo a tu proceso creativo.",
-        links: [{ t: "Galería", u: "#" }]
+        links: [{ t: "Galería", u: "gallery.html" }]
     },
 ];
 
