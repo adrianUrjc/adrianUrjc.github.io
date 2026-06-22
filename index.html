@@ -12,11 +12,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/cards.css">
 </head>
 
 <body>
@@ -40,7 +39,7 @@
       <div class="ground g-row-1"></div>
       <div class="ground g-row-2"></div>
       <div class="ground g-row-3"></div>
-    </div>
+      </div>
 
     <div id="character">
       <canvas class="idle"></canvas>
@@ -65,6 +64,7 @@
 
     <div class="hud">
       <span class="name">Adrián Gómez-Lobo Núñez</span>
+      <span class="coin-counter" style="margin-left: 15px; color: #ffcc00; font-family: var(--font-mono); font-weight: bold;">🪙 <span id="coin-score">0</span>/10</span>
       <a id="toEnd" href="#" title="Saltar al final">CV / Contacto ⏭</a>
       <span class="zone">Inicio</span>
     </div>

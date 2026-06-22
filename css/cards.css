@@ -1,0 +1,247 @@
+/* =======================================================================
+   CONTENEDOR DE TARJETAS (CARRUSEL)
+   ======================================================================= */
+.card-container {
+    position: fixed;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 12;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease, right 0.5s cubic-bezier(.25, 1, .5, 1);
+}
+
+.card-container.show {
+    opacity: 1;
+    right: 4%; 
+    pointer-events: auto;
+}
+
+/* =======================================================================
+   ESTRUCTURA BASE DE LA TARJETA
+   ======================================================================= */
+.card {
+    width: 380px;
+    background: rgba(16, 12, 28, 0.93);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0; 
+    opacity: 0;
+    transform: translateX(60px) scale(0.92);
+    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
+                opacity 0.4s ease, 
+                filter 0.3s ease;
+}
+
+.card.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.card.switching {
+    opacity: 0.2;
+    transform: scale(0.9) translateX(-20px);
+    filter: blur(4px);
+    transition: transform 0.2s ease-in, opacity 0.2s ease-in, filter 0.2s ease-in;
+}
+
+/* =======================================================================
+   ELEMENTOS INTERNOS DE LA TARJETA
+   ======================================================================= */
+.card .media {
+    height: 190px;
+    background-color: #07050d;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 14px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.card .media .placeholder {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, .4);
+    letter-spacing: .1em;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.card .badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #0c0a14;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.card .body {
+    padding: 20px 22px 22px;
+}
+
+.card h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -.02em;
+    line-height: 1.05;
+}
+
+.card .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, .55);
+    margin: 6px 0 12px;
+    letter-spacing: .04em;
+}
+
+.card p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .82);
+}
+
+/* Enlaces y botones */
+.card .links {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.card .links a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    color: #0c0a14;
+    background: var(--accent);
+    transition: transform .15s ease;
+}
+
+.card .links a.ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(255, 255, 255, .25);
+}
+
+.card .links a:hover {
+    transform: translateY(-2px);
+}
+
+/* =======================================================================
+   ESTILOS EXCLUSIVOS DE LA VISTA PREVIA (ESCRITORIO)
+   ======================================================================= */
+.card.preview-next {
+    opacity: 0.6 !important;
+    filter: grayscale(20%);
+    pointer-events: none;
+    position: relative; 
+    margin-left: -40px; 
+    transform: scale(0.88) !important;
+    background: rgba(16, 12, 28, 0.93) !important;
+    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
+                opacity 0.4s ease, 
+                margin-left 0.5s ease;
+}
+
+.card.preview-next::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(90deg, 
+        rgba(16, 12, 28, 0) 0%, 
+        rgba(16, 12, 28, 0) 35%, 
+        rgba(16, 12, 28, 0.7) 65%, 
+        rgba(16, 12, 28, 1) 100%
+    ) !important;
+}
+
+.card.preview-next .body,
+.card.preview-next .media {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+.card.preview-next .badge {
+    position: relative;
+    z-index: 6;
+    background: var(--accent, #00d2ff) !important;
+    color: #100c1c !important;
+    font-weight: 800;
+    opacity: 1 !important;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+/* =======================================================================
+   ADAPTACIÓN RESPONSIVA (MÓVILES)
+   ======================================================================= */
+@media (max-width: 768px) {
+    .card-container {
+        right: 0% !important;
+        width: 100vw;
+        top: 42%; 
+        transform: translateY(-50%);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .card-container.show {
+        right: 0% !important;
+    }
+
+    .card {
+        width: 85vw;
+        max-height: 38vh;
+        border-radius: 12px;
+    }
+
+    .card.preview-next {
+        margin-left: 0px !important;
+        margin-top: 0px; 
+        transform: scale(0.9) !important;
+        opacity: 0.5 !important;
+        max-height: 12vh;
+    }
+
+    .card.preview-next::after {
+        background: linear-gradient(180deg, 
+            rgba(16, 12, 28, 0) 0%, 
+            rgba(16, 12, 28, 0.2) 40%, 
+            rgba(16, 12, 28, 0.8) 80%, 
+            rgba(16, 12, 28, 1) 100%
+        ) !important;
+    }
+
+    .card.preview-next .badge {
+        transform: translateX(0px) !important;
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+}

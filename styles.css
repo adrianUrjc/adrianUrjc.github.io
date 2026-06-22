@@ -207,7 +207,7 @@ body {
 /* Partículas de Polvo */
 .dust {
     position: fixed;
-    bottom: 18vh;
+    bottom: 0;
     left: 26%;
     transform: translateX(-50%);
     z-index: 6;
@@ -385,285 +385,6 @@ body {
     border: 1px solid rgba(255, 255, 255, .3);
     border-radius: 4px;
     padding: 2px 7px;
-}
-
-/* =======================================================================
-   SISTEMA DE CARRUSEL CON PREVIEW INTERACTIVA
-   ======================================================================= */
-
-/* Contenedor de la cola de tarjetas */
-/* =======================================================================
-   SISTEMA DE CARRUSEL ADAPTATIVO CON RECORTE GEOMÉTRICO (CLIP-PATH)
-   ======================================================================= */
-
-/* Contenedor principal */
-.card-container {
-    position: fixed;
-    right: 5%;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 12;
-    display: flex;
-     flex-direction: row;
-    gap: 24px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease, right 0.5s cubic-bezier(.25, 1, .5, 1);
-}
-
-/* Activación del contenedor */
-.card-container.show {
-    opacity: 1;
-    right: 4%; 
-    pointer-events: auto;
-}
-
-/* Tarjeta base */
-.card {
-    width: 380px;
-    background: rgba(16, 12, 28, 0.93);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    overflow: hidden;
-    flex-shrink: 0; 
-    
-    /* Estado oculto inicial fuera de pantalla */
-    opacity: 0;
-    transform: translateX(60px) scale(0.92);
-    
-    /* Transición elástica original de las cartas */
-    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
-                opacity 0.4s ease, 
-                filter 0.3s ease;
-}
-.card.switching {
-    opacity: 0.2;
-    transform: scale(0.9) translateX(-20px);
-    filter: blur(4px);
-    transition: transform 0.2s ease-in, opacity 0.2s ease-in, filter 0.2s ease-in;
-}
-
-/* Tarjeta principal activa */
-.card.show {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-}
-
-/* 🌟 LA PREVIEW: Mitad exacta transparente, salida de pantalla y texto legible */
-/* 🌟 LA PREVIEW: Configuración de posición y separación */
-.card.preview-next {
-    opacity: 0.6 !important; /* Subimos la opacidad base para que los textos brillen */
-    filter: grayscale(20%);
-    pointer-events: none;
-    position: relative; /* Esencial para posicionar la capa de degradado encima */
-    
-    /* 💥 CORRECCIÓN SEPARACIÓN: Cambiamos de -120px a -50px para que no se solapen */
-    margin-left: -40px; 
-    transform: scale(0.88) !important;
-    
-    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
-                opacity 0.4s ease, 
-                margin-left 0.5s ease;
-
-    /* Fondo normal sin degradados directos que rompan los textos */
-    background: rgba(16, 12, 28, 0.93) !important;
-}
-
-/* ✂️ CAPA DE NIEBLA DE DERECHA A IZQUIERDA: 
-   Esta capa se pone por encima de las imágenes y textos, difuminando SOLO el lado derecho.
-   El lado izquierdo se mantiene intacto (Alfa = 1). */
-.card.preview-next::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5; /* Se sitúa por encima del texto e imágenes de la preview */
-    
-    /* Degradado: de transparente (izquierda) a opaco total igual que el fondo (derecha) */
-    background: linear-gradient(90deg, 
-        rgba(16, 12, 28, 0) 0%, 
-        rgba(16, 12, 28, 0) 35%, 
-        rgba(16, 12, 28, 0.7) 65%, 
-        rgba(16, 12, 28, 1) 100%
-    ) !important;
-}
-
-/* ❌ ELIMINAR MÁSCARAS CONFLICTIVAS: 
-   Limpiamos las máscaras que le habíamos puesto antes a los hijos 
-   para que no vuelvan transparente el texto de la izquierda por error */
-.card.preview-next .body,
-.card.preview-next .media {
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-}
-
-/* 🏷️ EL BADGE DE "SIGUIENTE": Forzamos a que se renderice por encima de la niebla */
-.card.preview-next .badge {
-    position: relative;
-    z-index: 6; /* Mayor que el z-index de la niebla (5) */
-    background: var(--accent, #00d2ff) !important; /* Usará el azul de herramientas Unity */
-    color: #100c1c !important;
-    font-weight: 800;
-    opacity: 1 !important;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-}
-
-/* =======================================================================
-   REGLAS RESPONSIVAS PARA DISPOSITIVOS MÓVILES (MEDIA QUERIES)
-   ======================================================================= */
-/* =======================================================================
-   REGLAS RESPONSIVAS PARA DISPOSITIVOS MÓVILES (MÉTODO COLUMNA)
-   ======================================================================= */
-@media (max-width: 768px) {
-    /* Contenedor: Lo centramos en pantalla y lo subimos un poco (top: 42%) 
-       para dejar aire a los botones de la cruceta táctil */
-    .card-container {
-        right: 0% !important;
-        width: 100vw;
-        top: 42%; 
-        transform: translateY(-50%);
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 12px; /* Espaciado vertical entre la carta y su preview inferior */
-    }
-
-    .card-container.show {
-        right: 0% !important;
-    }
-
-    /* Redimensionamos la tarjeta para que quepa bien en pantallas verticales */
-    .card {
-        width: 85vw; /* Aprovecha mejor el ancho del móvil */
-        max-height: 38vh; /* Evita que se estire demasiado hacia abajo */
-        border-radius: 12px;
-    }
-
-    /* 🌟 CONFIGURACIÓN DE LA PREVIEW EN INFERIOR */
-    .card.preview-next {
-        margin-left: 0px !important; /* Quitamos el margen lateral de escritorio */
-        margin-top: 0px; 
-        transform: scale(0.9) !important;
-        opacity: 0.5 !important;
-        max-height: 12vh; /* La hacemos chatita para que solo asome el título */
-    }
-
-    /* ✂️ REDIRECCIÓN DE LA NIEBLA (De arriba a abajo):
-       Hacemos que el degradado caiga de forma vertical (180deg) para que el 
-       texto superior de la preview sea 100% visible y se difumine hacia la parte baja. */
-    .card.preview-next::after {
-        background: linear-gradient(180deg, 
-            rgba(16, 12, 28, 0) 0%, 
-            rgba(16, 12, 28, 0.2) 40%, 
-            rgba(16, 12, 28, 0.8) 80%, 
-            rgba(16, 12, 28, 1) 100%
-        ) !important;
-    }
-
-    /* Forzamos que el badge de "Siguiente" no se mueva en móvil */
-    .card.preview-next .badge {
-        transform: translateX(0px) !important;
-        font-size: 10px;
-        padding: 2px 6px;
-    }
-}
-
-/* Estructura Interna de las Tarjetas */
-.card .media {
-    height: 190px;
-    background-color: #07050d;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    padding: 14px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.card .media .placeholder {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: rgba(255, 255, 255, .4);
-    letter-spacing: .1em;
-    text-align: center;
-    padding: 0 20px;
-}
-
-.card .badge {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    border-radius: 999px;
-    background: var(--accent);
-    color: #0c0a14;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-.card .body {
-    padding: 20px 22px 22px;
-}
-
-.card h3 {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 24px;
-    letter-spacing: -.02em;
-    line-height: 1.05;
-}
-
-.card .meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: rgba(255, 255, 255, .55);
-    margin: 6px 0 12px;
-    letter-spacing: .04em;
-}
-
-.card p {
-    font-size: 14px;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, .82);
-}
-
-.card .links {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-}
-
-.card .links a {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    color: #0c0a14;
-    background: var(--accent);
-    transition: transform .15s ease;
-}
-
-.card .links a.ghost {
-    background: transparent;
-    color: var(--paper);
-    border: 1px solid rgba(255, 255, 255, .25);
-}
-
-.card .links a:hover {
-    transform: translateY(-2px);
 }
 
 /* =======================================================================
@@ -898,4 +619,154 @@ body {
     .card {
         transition: opacity .2s linear;
     }
+}
+/* =======================================================================
+   ENTIDADES: MONEDAS (PREPARADAS PARA SPRITE SHEET)
+   ======================================================================= */
+.coin {
+    position: absolute;
+    width: 32px;  /* Ajusta al tamaño exacto de un frame de tu futura sheet (ej: 32x32) */
+    height: 32px;
+    z-index: 5;
+    
+    /* Centramos la moneda respecto a la coordenada X de Javascript */
+    transform: translateX(-50%);
+    
+    /* 🎨 Marcador temporal (Borra estas 4 líneas cuando metas tu Sprite Sheet) */
+    background: #ffcc00;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 15px #ffaa00;
+
+    /* 🎞️ PREPARACIÓN PARA TU FUTURO SPRITE SHEET:
+       Cuando tengas tu imagen, descomenta estas líneas y apunta a tu archivo.
+       Usaremos 'steps' para que el CSS salte limpiamente de frame en frame. */
+    /* background-image: url('../assets/sprites/CoinSpriteSheet.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    animation: coinFloat 1.8s ease-in-out infinite, 
+               coinAnimate 0.8s steps(8) infinite; 
+    */
+
+    /* Animación temporal de flotado e intro elástica */
+    animation: coinFloat 1.8s ease-in-out infinite;
+    transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1), 
+                opacity 0.2s ease;
+}
+
+/* Estado cuando Uncle Belly colisiona con ella */
+.coin.collected {
+    transform: translateX(-50%) translateY(-40px) scale(0) rotate(180deg);
+    opacity: 0;
+}
+
+/* =======================================================================
+   ANIMACIONES DE LAS MONEDAS
+   ======================================================================= */
+
+/* 1. Movimiento flotante arriba y abajo */
+@keyframes coinFloat {
+    0%, 100% { 
+        margin-bottom: 0px; 
+    }
+    50% { 
+        margin-bottom: 12px; /* Flota 12px hacia arriba en el aire */
+    }
+}
+
+/* 2. Animación del Sprite Sheet (Déjala lista para cuando uses tu tira de frames)
+   Cambia '100%' al desplazamiento total negativo de tu imagen (ej: -256px si son 8 frames de 32px) */
+@keyframes coinAnimate {
+    from { background-position: 0px 0px; }
+    to { background-position: -256px 0px; } 
+}
+/* =======================================================================
+   VENTANA EMERGENTE: FIN DE NIVEL (POP-UP)
+   ======================================================================= */
+#game-clear-msg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 8, 20, 0.9); /* Fondo oscuro translúcido */
+    backdrop-filter: blur(6px);       /* Desenfoque del fondo */
+    z-index: 99999;                   /* Por encima de absolutamente todo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeInClear 0.3s ease forwards;
+}
+
+#game-clear-msg .msg-content {
+    background: #161322;
+    border: 3px solid #ffcc00;        /* Borde dorado de victoria */
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 420px;
+    width: 85%;
+    box-shadow: 0 0 30px rgba(255, 204, 0, 0.3);
+    transform: scale(0.7);
+    animation: popInClear 0.4s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+
+#game-clear-msg .trophy {
+    font-size: 55px;
+    display: block;
+    margin-bottom: 15px;
+    animation: floatTrophy 2s ease-in-out infinite;
+}
+
+#game-clear-msg h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    color: #ffcc00;
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    letter-spacing: 1px;
+}
+
+#game-clear-msg p {
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+    opacity: 0.9;
+}
+
+#game-clear-msg button {
+    background: #ffcc00;
+    color: #0c0a14;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    text-transform: uppercase;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+#game-clear-msg button:hover {
+    transform: scale(1.05);
+    background: #ffe066;
+}
+
+/* =======================================================================
+   ANIMACIONES DEL POP-UP
+   ======================================================================= */
+@keyframes fadeInClear {
+    to { opacity: 1; }
+}
+
+@keyframes popInClear {
+    to { transform: scale(1); }
+}
+
+@keyframes floatTrophy {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }

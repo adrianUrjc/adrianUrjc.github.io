@@ -235,3 +235,69 @@
         font-size: 18px;
     }
 }
+/*MENSAJE FINAL*/
+/* Estilos para el Pop-up de Fin de Juego */
+#game-clear-msg {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 5, 13, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+#game-clear-msg .msg-content {
+    background: #16121c;
+    border: 2px solid #ffcc00;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 450px;
+    width: 85vw;
+    box-shadow: 0 10px 30px rgba(255, 204, 0, 0.2);
+    transform: scale(0.8);
+    animation: popIn 0.5s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+
+#game-clear-msg .trophy {
+    font-size: 50px;
+    display: block;
+    margin-bottom: 10px;
+    animation: float 2s ease-in-out infinite;
+}
+
+#game-clear-msg h2 {
+    font-family: var(--font-display, sans-serif);
+    color: #ffcc00;
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+#game-clear-msg p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+#game-clear-msg button {
+    background: #ffcc00;
+    color: #0c0a14;
+    border: none;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#game-clear-msg button:hover {
+    transform: scale(1.05);
+}
+
+@keyframes popIn {
+    to { transform: scale(1); }
+}

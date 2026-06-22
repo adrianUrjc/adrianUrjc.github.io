@@ -44,7 +44,29 @@ const physics = {
 
 // Captura de inputs en tiempo real
 const keys = { Left: false, Right: false, Up: false };
+// 🌟 SISTEMA DE 10 MONEDAS REPARTIDAS POR TODO EL MAPA (POSICIONES RELATIVAS)
+let coins = [
+  // --- ZONA 1: VIDEOJUEGOS (De 0.0 a 0.25) ---
+  { x: 0.06, y: 30, collected: false },  // Moneda introductoria, a ras de suelo
+  { x: 0.15, y: 150, collected: false }, // Salto alto (exige saltar con ganas)
+  { x: 0.22, y: 65, collected: false },  // Altura media, ideal para coger al caer del anterior
 
+  // --- ZONA 2: UNITY TOOLS (De 0.25 a 0.50) ---
+  { x: 0.32, y: 40, collected: false },  // Altura baja, un salto corto o corriendo
+  { x: 0.42, y: 175, collected: false }, // ¡Salto extremo! (Justo en el pico más alto de Uncle Belly)
+
+  // --- ZONA 3: CONCEPT ART / PROTOTIPOS (De 0.50 a 0.75) ---
+  { x: 0.55, y: 120, collected: false },  // Altura media
+  { x: 0.63, y: 30, collected: false },  // En el suelo
+  { x: 0.70, y: 165, collected: false }, // Salto alto
+
+  // --- ZONA 4: CV / CONTACTO (De 0.75 a 1.0) ---
+  { x: 0.82, y: 65, collected: false },  // Altura media, preparando el tramo final
+  { x: 0.93, y: 180, collected: false }  // La última moneda, un salto épico justo antes del final
+];
+
+let totalCoinsCollected = 0;
+let finalMessageShown = false;
 // Comprobamos dependencias
 if (typeof projects === 'undefined') console.error("❌ ERROR: 'projects' NO está definido.");
 if (typeof ZONE === 'undefined') console.error("❌ ERROR: 'ZONE' NO está definido.");
@@ -195,11 +217,16 @@ function setAccent(zoneKey) {
 function buildPosts() {
   if (!world || typeof projects === 'undefined' || typeof ZONE === 'undefined') return;
 
-  // 🌟 CAMBIO CRÍTICO: En vez de vaciar todo el HTML (lo que borraba el suelo), 
-  // eliminamos únicamente los elementos con la clase '.post' que ya existieran.
-  const oldPosts = world.querySelectorAll('.post');
-  oldPosts.forEach(p => p.remove());
+  // 1. 🧹 LIMPIEZA ABSOLUTA DE POSTES Y MONEDAS PREVIAS
+  // Usamos un bucle while para asegurarnos de que no quede ni un solo clon en el DOM
+  while (world.querySelector('.post')) {
+    world.querySelector('.post').remove();
+  }
+  while (world.querySelector('.coin')) {
+    world.querySelector('.coin').remove();
+  }
 
+  // 2. Renderizar Postes (Tu lógica se queda igual)
   projects.forEach(p => {
     const post = document.createElement('div');
     post.className = 'post';
@@ -215,6 +242,24 @@ function buildPosts() {
     }
     world.appendChild(post);
   });
+
+  // 3. Renderizar Monedas (Ahora libre de duplicados)
+  if (typeof coins !== 'undefined') {
+    coins.forEach((coin, index) => {
+      // 🌟 FILTRO CRÍTICO: Si la moneda ya fue recolectada en una partida previa, ni la creamos
+      if (coin.collected) return;
+
+      const coinEl = document.createElement('div');
+      coinEl.className = 'coin';
+      coinEl.dataset.id = index;
+
+      const posX = charX + (coin.x * worldTravel);
+      coinEl.style.left = posX + 'px';
+      coinEl.style.bottom = `calc(var(--suelo-alto, 140px) + ${coin.y}px)`;
+
+      world.appendChild(coinEl);
+    });
+  }
 }
 function showCard(i) {
   if (!card || typeof projects === 'undefined') return;
@@ -303,6 +348,20 @@ function showCard(i) {
 
   padre.classList.add('show');
 }
+function mostrarMensajeAgradecimiento() {
+  // Creamos el contenedor del mensaje dinámicamente
+  const alertBox = document.createElement('div');
+  alertBox.id = 'game-clear-msg';
+  alertBox.innerHTML = `
+    <div class="msg-content">
+      <span class="trophy">🏆</span>
+      <h2>¡NIVEL COMPLETADO!</h2>
+      <p>Has conseguido todas las monedas. Gracias por jugar y explorar todos mis proyectos.</p>
+      <button onclick="this.parentElement.parentElement.remove()">Continuar explorando</button>
+    </div>
+  `;
+  document.body.appendChild(alertBox);
+}
 // LÓGICA DE ACTUALIZACIÓN DINÁMICA DE ENTRADAS Y FÍSICAS
 function updateMovement() {
   const speed = window.innerWidth <= 768 ? 6 : 14;
@@ -342,6 +401,54 @@ function updateMovement() {
     // Aplicamos la altura base más el desplazamiento del salto vertical (physics.y)
     character.style.bottom = `${baseVisual}px`;
     character.style.transform = `translateX(-50%) translateY(${-physics.y}px)`;
+  }
+  // 🌟 DETECTAR COLISIÓN CON MONEDAS (Caja de colisión integrada)
+  const playerWorldX = virtualScrollY + charX; 
+  const playerWorldY = physics.y; // 0 en el suelo, sube al saltar
+
+  // Definimos el tamaño del cuerpo de Uncle Belly para la colisión
+  const playerWidth = 50;  
+  const playerHeight = 90; // Altura estimada de tu personaje
+
+  coins.forEach((coin, index) => {
+    if (!coin.collected) {
+      const coinWorldX = charX + (coin.x * worldTravel);
+      const coinWorldY = coin.y; 
+
+      const coinWidth = 32;  // Tamaño de la moneda en tu CSS
+      const coinHeight = 32;
+
+      // Comprobación de Caja AABB (Eje X e Eje Y solapados)
+      const colisionX = (playerWorldX - playerWidth / 2) < (coinWorldX + coinWidth / 2) &&
+                        (playerWorldX + playerWidth / 2) > (coinWorldX - coinWidth / 2);
+
+      const colisionY = playerWorldY < (coinWorldY + coinHeight) &&
+                        (playerWorldY + playerHeight) > coinWorldY;
+
+      // Si se cruzan ambos ejes... ¡RECOLECTADA!
+      if (colisionX && colisionY) {
+        coin.collected = true;
+        totalCoinsCollected++;
+
+        // Actualizar el marcador en el HTML de forma segura
+        const scoreEl = document.getElementById('coin-score');
+        if (scoreEl) scoreEl.textContent = totalCoinsCollected;
+
+        // Ocultar el elemento visual
+        const coinElement = world.querySelector(`.coin[data-id="${index}"]`);
+        if (coinElement) {
+          coinElement.classList.add('collected');
+          setTimeout(() => coinElement.style.display = 'none', 300);
+        }
+
+        console.log(`¡Moneda conseguida! ${totalCoinsCollected}/${coins.length}`);
+      }
+    }
+  });
+  // Comprobar final de juego
+  if (totalCoinsCollected === coins.length && !finalMessageShown) {
+    finalMessageShown = true;
+    mostrarMensajeAgradecimiento();
   }
 }
 
@@ -424,6 +531,7 @@ function loop() {
       }
     }
   }
+
   requestAnimationFrame(loop);
 }
 
