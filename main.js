@@ -10,7 +10,7 @@ const world = document.getElementById('world');
 const character = document.getElementById('character');
 const bar = document.querySelector('.progress .bar');
 const zoneLabel = document.querySelector('.hud .zone');
-const card = document.getElementById('card');
+const card = document.getElementById('project-card');
 const far = document.querySelector('.layer-far');
 const mid = document.querySelector('.layer-mid');
 const close = document.querySelector('.layer-close');
@@ -35,11 +35,11 @@ let maxScrollValue = 0;
 
 // Configuración física del Personaje
 const physics = {
-    y: 0,            // Altura de salto actual (0 = suelo)
-    vy: 0,           // Velocidad vertical
-    gravity: 0.4,    // Fuerza de gravedad
-    jumpImpulse: 15, // Impulso inicial hacia arriba
-    isJumping: false
+  y: 0,            // Altura de salto actual (0 = suelo)
+  vy: 0,           // Velocidad vertical
+  gravity: 0.4,    // Fuerza de gravedad
+  jumpImpulse: 15, // Impulso inicial hacia arriba
+  isJumping: false
 };
 
 // Captura de inputs en tiempo real
@@ -109,73 +109,97 @@ function stepSprites(now) {
 
     // Control riguroso de qué Sprite Sheet se despliega
     if (k === 'jump') {
-        if (!jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
-        else { s.el.style.display = 'block'; }
+      if (!jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+      else { s.el.style.display = 'block'; }
     }
     if (k === 'walk') {
-        if (!walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
-        else { s.el.style.display = 'block'; }
+      if (!walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+      else { s.el.style.display = 'block'; }
     }
     if (k === 'idle') {
-        if (walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
-        else { s.el.style.display = 'block'; }
+      if (walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+      else { s.el.style.display = 'block'; }
     }
 
     s.acc += dt;
     const dur = 1000 / s.fps;
     let changed = false;
-    while (s.acc >= dur) { 
-        s.acc -= dur; 
-        // Si es animación de salto, se puede quedar fija en el último frame si sigue en el aire
-        if (k === 'jump' && s.frame === s.frames - 1) {
-            changed = true;
-            break;
-        }
-        s.frame = (s.frame + 1) % s.frames; 
-        changed = true; 
+    while (s.acc >= dur) {
+      s.acc -= dur;
+      // Si es animación de salto, se puede quedar fija en el último frame si sigue en el aire
+      if (k === 'jump' && s.frame === s.frames - 1) {
+        changed = true;
+        break;
+      }
+      s.frame = (s.frame + 1) % s.frames;
+      changed = true;
     }
     if (changed) drawSprite(s);
   }
 }
 
 function layout() {
-  if (!spacer || !world) return;
-  
-  // 1. EL CAMBIO CLAVE: Definimos el tamaño del nivel por software (7 pantallas de ancho)
-  worldTravel = window.innerWidth * (SCROLL_VIEWPORTS - 1);
-  maxScrollValue = worldTravel; // Ahora el límite es el tamaño real del mapa, no el scroll del navegador
+  // Capturamos el contenedor del mundo de forma segura
+  const worldElement = document.getElementById('world');
+  if (!worldElement) {
+    console.error("❌ ERROR: No se encuentra el elemento #world en el HTML");
+    return;
+  }
 
+  // 1. Forzamos el cálculo del tamaño del mapa entero
+  const viewports = typeof SCROLL_VIEWPORTS !== 'undefined' ? SCROLL_VIEWPORTS : 7;
+  worldTravel = window.innerWidth * (viewports - 1);
+  maxScrollValue = worldTravel;
+  const totalWidth = worldTravel + window.innerWidth;
+
+  // 2. 🌟 LE DAMOS EL ANCHO AL MUNDO Y AL SUELO ANTES DE CUALQUIER OTRA COSA
+  worldElement.style.width = totalWidth + 'px';
+
+  const groundRows = document.querySelectorAll('.ground');
+  if (groundRows.length > 0) {
+    groundRows.forEach(row => {
+      row.style.width = totalWidth + 'px';
+    });
+  } else {
+    console.warn("⚠️ ADVERTENCIA: No se han encontrado elementos con la clase .ground");
+  }
+
+  // 3. Comprobaciones de seguridad para el resto de capas (si fallan, el suelo ya se habrá pintado)
   charX = window.innerWidth * (window.innerWidth < 600 ? 0.18 : 0.26);
-  world.style.width = (worldTravel + window.innerWidth) + 'px';
 
-  if (far) far.style.width = (worldTravel * 0.12 + window.innerWidth) + 'px';
-  if (mid) mid.style.width = (worldTravel * 0.35 + window.innerWidth) + 'px';
-  if (close) close.style.width = (worldTravel * 0.68 + window.innerWidth) + 'px';
+  if (typeof far !== 'undefined' && far) far.style.width = (worldTravel * 0.12 + window.innerWidth) + 'px';
+  if (typeof mid !== 'undefined' && mid) mid.style.width = (worldTravel * 0.35 + window.innerWidth) + 'px';
+  if (typeof close !== 'undefined' && close) close.style.width = (worldTravel * 0.68 + window.innerWidth) + 'px';
 
-  buildPosts();
+  if (typeof buildPosts === 'function') buildPosts();
 }
 
 
 
-function setAccent(zoneKey){
-  if(zoneKey === activeZone || typeof ZONE === 'undefined') return;
+function setAccent(zoneKey) {
+  if (zoneKey === activeZone || typeof ZONE === 'undefined') return;
   activeZone = zoneKey;
   const z = ZONE[zoneKey];
-  if(!z) return;
-  
-  if(root) {
+  if (!z) return;
+
+  if (root) {
     root.style.setProperty('--accent', `var(${z.a})`);
     root.style.setProperty('--accent2', `var(${z.b})`);
   }
-  
+
   const stageEl = document.getElementById('stage');
-  if(stageEl) stageEl.dataset.zone = zoneKey; 
-  if(zoneLabel) zoneLabel.textContent = z.label;
+  if (stageEl) stageEl.dataset.zone = zoneKey;
+  if (zoneLabel) zoneLabel.textContent = z.label;
 }
 
 function buildPosts() {
   if (!world || typeof projects === 'undefined' || typeof ZONE === 'undefined') return;
-  world.innerHTML = '';
+
+  // 🌟 CAMBIO CRÍTICO: En vez de vaciar todo el HTML (lo que borraba el suelo), 
+  // eliminamos únicamente los elementos con la clase '.post' que ya existieran.
+  const oldPosts = world.querySelectorAll('.post');
+  oldPosts.forEach(p => p.remove());
+
   projects.forEach(p => {
     const post = document.createElement('div');
     post.className = 'post';
@@ -192,83 +216,133 @@ function buildPosts() {
     world.appendChild(post);
   });
 }
-
 function showCard(i) {
   if (!card || typeof projects === 'undefined') return;
   const p = projects[i];
   if (!p) return;
 
-  const badge = card.querySelector('.badge');
-  const title = card.querySelector('h3');
-  const meta = card.querySelector('.meta');
-  const pText = card.querySelector('p');
-  const media = card.querySelector('.media');
-  const ph = card.querySelector('.placeholder');
-  const links = card.querySelector('.links');
+  const padre = card.parentNode;
 
-  if (badge) badge.textContent = p.tag;
-  if (title) title.textContent = p.title;
-  if (meta) meta.textContent = p.meta;
-  if (pText) pText.textContent = p.desc;
+  // Lógica interna para actualizar el contenido real de los nodos
+  function renderContenido() {
+    // 1. Limpiar previews viejas
+    const previewVieja = padre.querySelector('.card.preview-next');
+    if (previewVieja) previewVieja.remove();
+    card.classList.remove('preview-next');
 
-  if (media) {
-    if (p.img) { media.style.backgroundImage = `url('${p.img}')`; if (ph) ph.textContent = ''; }
-    else { media.style.backgroundImage = ''; if (ph) ph.textContent = `[ assets/${p.zone}/ ]\nañade aquí tu captura o vídeo`; }
+    // 2. Actualizar tarjeta principal
+    const badge = card.querySelector('.badge');
+    const title = card.querySelector('h3');
+    const meta = card.querySelector('.meta');
+    const pText = card.querySelector('p');
+    const media = card.querySelector('.media');
+    const ph = card.querySelector('.placeholder');
+    const links = card.querySelector('.links');
+
+    if (badge) badge.textContent = p.tag;
+    if (title) title.textContent = p.title;
+    if (meta) meta.textContent = p.meta;
+    if (pText) pText.textContent = p.desc;
+
+    if (media) {
+      if (p.img) { media.style.backgroundImage = `url('${p.img}')`; if (ph) ph.textContent = ''; }
+      else { media.style.backgroundImage = ''; if (ph) ph.textContent = `[ assets/${p.zone}/ ]\nañade aquí tu captura o vídeo`; }
+    }
+
+    if (links) {
+      links.innerHTML = '';
+      p.links.forEach(l => {
+        const a = document.createElement('a'); a.href = l.u; a.textContent = l.t; a.target = "_blank";
+        if (l.ghost) a.className = 'ghost'; links.appendChild(a);
+      });
+    }
+
+    // 3. Crear nueva preview
+    const nextP = projects[i + 1];
+    if (nextP) {
+      const previewClone = card.cloneNode(true);
+      previewClone.removeAttribute('id');
+      previewClone.classList.remove('show', 'switching');
+      previewClone.classList.add('preview-next');
+
+      const nextBadge = previewClone.querySelector('.badge');
+      const nextTitle = previewClone.querySelector('h3');
+      const nextMeta = previewClone.querySelector('.meta');
+      const nextPText = previewClone.querySelector('p');
+      const nextMedia = previewClone.querySelector('.media');
+      const nextLinks = previewClone.querySelector('.links');
+
+      if (nextBadge) nextBadge.textContent = "Siguiente";
+      if (nextTitle) nextTitle.textContent = nextP.title;
+      if (nextMeta) nextMeta.textContent = nextP.meta;
+      if (nextPText) nextPText.textContent = nextP.desc.length > 75 ? nextP.desc.substring(0, 75) + '...' : nextP.desc;
+
+      if (nextMedia) {
+        if (nextP.img) { nextMedia.style.backgroundImage = `url('${nextP.img}')`; }
+        else { nextMedia.style.backgroundImage = ''; }
+      }
+      if (nextLinks) nextLinks.innerHTML = '';
+      padre.appendChild(previewClone);
+    }
   }
 
-  if (links) {
-    links.innerHTML = '';
-    p.links.forEach(l => {
-      const a = document.createElement('a'); a.href = l.u; a.textContent = l.t;
-      if (l.ghost) a.className = 'ghost'; links.appendChild(a);
-    });
+  // 🌟 EL TRUCO DE LA TRANSICIÓN: Si la carta ya se estaba mostrando, 
+  // hacemos un efecto de cortinilla temporal para cambiar los datos
+  if (card.classList.contains('show')) {
+    card.classList.add('switching');
+
+    setTimeout(() => {
+      renderContenido();
+      card.classList.remove('switching');
+    }, 200); // 200ms es el tiempo que tarda en encogerse en el CSS
+  } else {
+    // Si la carta estaba completamente oculta, se renderiza instantáneamente de fondo
+    renderContenido();
+    card.classList.add('show');
   }
-  card.classList.add('show');
+
+  padre.classList.add('show');
 }
-
 // LÓGICA DE ACTUALIZACIÓN DINÁMICA DE ENTRADAS Y FÍSICAS
 function updateMovement() {
-    const speed = 16; // Velocidad de avance horizontal del nivel
+  const speed = window.innerWidth <= 768 ? 6 : 14;
 
-    // 1. Movimiento Horizontal
-    if (keys.Right) {
-        virtualScrollY = Math.min(maxScrollValue, virtualScrollY + speed);
+  // 1. 🌟 LEER LA ALTURA DEL SUELO DESDE EL CSS EN TIEMPO REAL
+  const estiloRoot = getComputedStyle(document.documentElement);
+  const alturaSuelo = parseInt(estiloRoot.getPropertyValue('--suelo-alto')) || 140;
+
+  // Movimiento Horizontal
+  if (keys.Right) virtualScrollY = Math.min(maxScrollValue, virtualScrollY + speed);
+  if (keys.Left) virtualScrollY = Math.max(0, virtualScrollY - speed);
+
+  // Mecánica de Salto y Gravedad
+  if (keys.Up && !physics.isJumping) {
+    physics.vy = -physics.jumpImpulse;
+    physics.isJumping = true;
+  }
+
+  if (physics.isJumping) {
+    physics.vy += physics.gravity;
+    physics.y -= physics.vy;
+
+    if (physics.y <= 0) {
+      physics.y = 0;
+      physics.vy = 0;
+      physics.isJumping = false;
     }
-    if (keys.Left) {
-        virtualScrollY = Math.max(0, virtualScrollY - speed);
-    }
+  }
 
-    // 2. Mecánica de Salto y Gravedad (Consistente y unificada)
-    if (keys.Up && !physics.isJumping) {
-        physics.vy =- physics.jumpImpulse; // Reducimos ligeramente el impulso inicial (antes 15) para controlar la parábola
-        physics.isJumping = true;
-    }
+  target = maxScrollValue > 0 ? virtualScrollY / maxScrollValue : 0;
+  if (target > 0.02 && hint) hint.style.opacity = '0';
 
-    if (physics.isJumping) {
-        // Ajustamos la gravedad a 0.55 (antes 0.7) para que el personaje flote de forma 
-        // más natural y compense el retraso visual del movimiento de cámara (lerp)
-        physics.vy += physics.gravity; 
-        physics.y -= physics.vy;
-
-        // Comprobación de colisión con el suelo estable
-        if (physics.y <= 0) {
-            physics.y = 0;
-            physics.vy = 0;
-            physics.isJumping = false;
-        }
-    }
-
-    // Sincronizar el target con el avance virtual seguro
-    target = maxScrollValue > 0 ? virtualScrollY / maxScrollValue : 0;
-    
-    if (target > 0.02 && hint) hint.style.opacity = '0';
-
-    // 3. Aplicar la posición del salto usando 'current' en lugar de un cambio instantáneo
-    if (character) {
-        // Al aplicar la elevación con un pequeño suavizado o multiplicándola limpiamente,
-        // la GPU empareja perfectamente el movimiento vertical con el horizontal del parallax.
-        character.style.transform = `translateX(-50%) translateY(${-physics.y}px)`;
-    }
+  // 2. 🌟 AJUSTAR LA POSICIÓN DEL PERSONAJE USANDO LA VARIABLE GLOBAL
+  if (character) {
+    // Calculamos el suelo real y le restamos 14px de ajuste para sus piernas
+    const baseVisual = alturaSuelo - 14;
+    // Aplicamos la altura base más el desplazamiento del salto vertical (physics.y)
+    character.style.bottom = `${baseVisual}px`;
+    character.style.transform = `translateX(-50%) translateY(${-physics.y}px)`;
+  }
 }
 
 function loop() {
@@ -299,58 +373,119 @@ function loop() {
   stepSprites(performance.now());
 
   // 4. Lógica de zonas y tarjetas
-  if (p < 0.42) setAccent('videojuegos');
-  else if (p < 0.74) setAccent('unity');
-  else setAccent('concept');
+  const progreso = virtualScrollY / maxScrollValue; // Valor de 0 a 1
+  let zonaActual = "videojuegos";
+
+  if (progreso < 0.25) {
+    zonaActual = "videojuegos"; // Mañana / Día
+  } else if (progreso >= 0.25 && progreso < 0.50) {
+    zonaActual = "unity";       // Tarde
+  } else if (progreso >= 0.50 && progreso < 0.75) {
+    zonaActual = "concept";     // Noche
+  } else {
+    zonaActual = "cv";          // Noche / Fin
+  }
+
+  // Aplicamos el atributo al contenedor del escenario para cambiar los cielos y gradientes
+  if (stage && stage.getAttribute('data-zone') !== zonaActual) {
+    stage.setAttribute('data-zone', zonaActual);
+
+    // Actualizamos dinámicamente los colores de acento del HUD usando tu objeto ZONE
+    const configuracionZona = ZONE[zonaActual];
+    if (configuracionZona) {
+      document.documentElement.style.setProperty('--accent', `var(${configuracionZona.a})`);
+      document.documentElement.style.setProperty('--accent2', `var(${configuracionZona.b})`);
+
+      // Si tienes un elemento de texto para el nombre de la zona en el HUD:
+      const zoneLabel = document.querySelector('.hud .zone');
+      if (zoneLabel) zoneLabel.textContent = configuracionZona.label;
+    }
+  }
 
   if (typeof projects !== 'undefined') {
     let near = -1;
     projects.forEach((proj, i) => { if (Math.abs(p - proj.at) < 0.06) near = i; });
+
+    // 🌟 CORRECCIÓN: Solo disparamos la lógica si realmente cambiamos de poste
     if (near !== activeProject) {
       activeProject = near;
-      if (near === -1 && card) card.classList.remove('show');
-      else showCard(near);
+      if (near === -1) {
+        if (card) card.classList.remove('show');
+        // Limpiamos el contenedor y las previews al alejarnos
+        const padre = card ? card.parentNode : null;
+        if (padre) {
+          padre.classList.remove('show');
+          const previewVieja = padre.querySelector('.card.preview-next');
+          if (previewVieja) previewVieja.remove();
+        }
+      } else {
+        // Ejecuta solo una vez al entrar en el rango del poste
+        showCard(near);
+      }
     }
   }
-
   requestAnimationFrame(loop);
 }
 
+
 /* --- CAPTURA DE TECLADO (WASD / FLECHAS / ESPACIO) --- */
 window.addEventListener('keydown', e => {
-    if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = true;
-    if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = true;
-    if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) {
-        keys.Up = true;
-        e.preventDefault(); // Evita scroll nativo con la barra espaciadora
-    }
+  if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = true;
+  if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = true;
+  if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) {
+    keys.Up = true;
+    e.preventDefault(); // Evita scroll nativo con la barra espaciadora
+  }
 });
 
 window.addEventListener('keyup', e => {
-    if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = false;
-    if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = false;
-    if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) keys.Up = false;
+  if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = false;
+  if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = false;
+  if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) keys.Up = false;
 });
+function calcularPosicionesProyectos() {
+  const ordenZonas = ["videojuegos", "unity", "concept", "cv"];
+  const totalZonas = ordenZonas.length;
+  const espacioPorZona = 1.0 / totalZonas; // 0.25
+
+  ordenZonas.forEach((nombreZona, indiceZona) => {
+    const proyectosDeZona = projects.filter(p => p.zone === nombreZona);
+    const totalProyectos = proyectosDeZona.length;
+
+    proyectosDeZona.forEach((proyecto, indiceProyecto) => {
+      const inicioZona = indiceZona * espacioPorZona;
+
+      let posicionRelativa = 0.5;
+      if (totalProyectos > 1) {
+        posicionRelativa = indiceProyecto / (totalProyectos - 1);
+      }
+
+      // 🌟 AJUSTE: Reducimos el multiplicador a 0.5 y subimos el offset a 0.35.
+      // Esto empuja TODOS los postes hacia adelante, dejando el inicio totalmente limpio.
+      proyecto.at = inicioZona + (posicionRelativa * espacioPorZona * 0.5) + (espacioPorZona * 0.35);
+    });
+  });
+}
 
 /* --- CONFIGURACIÓN DE LA CRUCETA VISUAL (MÓVIL / CLICS) --- */
 const setupDpad = () => {
-    const btnUp = document.getElementById('pad-up');
-    const btnLeft = document.getElementById('pad-left');
-    const btnRight = document.getElementById('pad-right');
+  const btnUp = document.getElementById('pad-up');
+  const btnLeft = document.getElementById('pad-left');
+  const btnRight = document.getElementById('pad-right');
 
-    if(!btnUp || !btnLeft || !btnRight) return;
+  if (!btnUp || !btnLeft || !btnRight) return;
 
-    const bindKey = (el, action) => {
-        el.addEventListener('mousedown', () => keys[action] = true);
-        el.addEventListener('mouseup', () => keys[action] = false);
-        el.addEventListener('mouseleave', () => keys[action] = false);
-        el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[action] = true; });
-        el.addEventListener('touchend', () => keys[action] = false);
-    };
+  const bindKey = (el, action) => {
+    el.addEventListener('mousedown', () => keys[action] = true);
+    el.addEventListener('mouseup', () => keys[action] = false);
+    el.addEventListener('mouseleave', () => keys[action] = false);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[action] = true; });
+    el.addEventListener('touchend', () => keys[action] = false);
+  };
 
-    bindKey(btnUp, 'Up');
-    bindKey(btnLeft, 'Left');
-    bindKey(btnRight, 'Right');
+  bindKey(btnUp, 'Up');
+  bindKey(btnLeft, 'Left');
+  bindKey(btnRight, 'Right');
 };
 
 /* --- INTRO SEGURO A PRUEBA DE ERRORES --- */
@@ -373,11 +508,68 @@ if (toEndBtn) {
     virtualScrollY = maxScrollValue; // Salto instantáneo por software al final
   });
 }
+// Asegúrate de que esto se ejecute cuando el DOM esté completamente cargado
+function inicializarControlesMoviles() {
+  const btnLeft = document.getElementById('btn-left');
+  const btnRight = document.getElementById('btn-right');
+  const btnUp = document.getElementById('btn-up');
 
+  // Mensaje de depuración para ver si JS encuentra los botones en tu HTML
+  console.log("Detectando botones móviles:", { btnLeft, btnRight, btnUp });
+
+  if (!btnLeft || !btnRight || !btnUp) {
+    console.warn("⚠️ Cuidado: No se han encontrado todos los botones en el HTML.");
+    return;
+  }
+
+  // --- BOTÓN IZQUIERDA ---
+  btnLeft.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Evita que el móvil haga zoom o scroll nativo al pulsar
+    keys.Left = true;
+  });
+  btnLeft.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys.Left = false;
+  });
+
+  // --- BOTÓN DERECHA ---
+  btnRight.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    keys.Right = true;
+  });
+  btnRight.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys.Right = false;
+  });
+
+  // --- BOTÓN DE SALTO (Físicamente a la derecha) ---
+  btnUp.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    keys.Up = true;
+  });
+  btnUp.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys.Up = false;
+  });
+}
+
+// Forzamos la inicialización segura
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializarControlesMoviles);
+} else {
+  inicializarControlesMoviles();
+}
 // Deshabilitamos la escucha nativa del scroll del navegador para controlar el flujo por inputs
 window.addEventListener('resize', () => { layout(); });
+// 🌟 BUSCA EL ARRANQUE DEL JUEGO ABAJO DEL TODO EN TU MAIN.JS:
+// Envolvemos la ejecución para que espere a que el HTML exista en el navegador
+window.addEventListener('DOMContentLoaded', () => {
+  console.log("¡El DOM está listo! Inicializando escenario...");
 
-// Inicialización inicial limpia
-layout();
-setupDpad();
-requestAnimationFrame(loop);
+  // Ejecutamos el layout ahora que los elementos .ground ya existen sí o sí
+  layout();
+  calcularPosicionesProyectos();
+  setupDpad();
+  requestAnimationFrame(loop);
+});
+

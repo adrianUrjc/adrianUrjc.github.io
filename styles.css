@@ -1,14 +1,15 @@
 /* =======================================================================
-   ESTILOS — Portfolio jugable de Adrián Gómez-Lobo Núñez
+   PORTFOLIO JUGABLE — ADRIÁN GÓMEZ-LOBO NÚÑEZ
    ======================================================================= */
+
 :root {
-    /* ----- Paleta base ----- */
+    /* ----- Paleta Base ----- */
     --ink: #0c0a14;
     --paper: #f4eee2;
     --char: #ffd166;
     --char-dark: #1b1726;
 
-    /* Acentos por zona (videojuegos / herramientas / concept) */
+    /* ----- Acentos por Zona ----- */
     --z1-a: #ff5d73;
     --z1-b: #ffb05c;
     --z2-a: #36c5f0;
@@ -19,42 +20,47 @@
     --accent: var(--z1-a);
     --accent2: var(--z1-b);
 
+    /* ----- Tipografías ----- */
     --font-display: "Bricolage Grotesque", system-ui, sans-serif;
     --font-body: "Inter", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
-    
-    --ch: 160px; /* Tamaño base del personaje */
+
+    /* ----- Dimensiones Gameplay ----- */
+    --ch: 160px;
+    /* Tamaño base del personaje */
+    --suelo-alto: 220px;
 }
 
+/* =======================================================================
+   RESET & CONFIGURACIÓN BASE
+   ======================================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0
-}
-
-html {
-    scroll-behavior: auto
+    padding: 0;
 }
 
 body {
     background: var(--ink);
     color: var(--paper);
     font-family: var(--font-body);
-    overflow-x: hidden;
+    overflow: hidden !important;
+    /* Desactivamos scroll nativo por mecánicas de juego */
+    touch-action: none;
+    /* Evita gestos de arrastre del navegador en móviles */
 }
 
 /* =======================================================================
-   STAGE: Contenedor Base de Iluminación
+   STAGE & PARALLAX BACKGROUND
    ======================================================================= */
 #stage {
     position: fixed;
     inset: 0;
     overflow: hidden;
     z-index: 1;
-    transition: background 1s ease;
 }
 
-/* ☀️/🌙 EL ORBE: Detrás de las capas de escenario, delante del cielo */
+/* ☀️/🌙 El Orbe Celestial */
 .orb {
     position: absolute;
     top: 12%;
@@ -62,13 +68,11 @@ body {
     width: 110px;
     height: 110px;
     border-radius: 50%;
-    z-index: 2; 
+    z-index: 2;
     transition: background 1s ease, box-shadow 1s ease;
 }
 
-/* =======================================================================
-   PARALLAX CAPAS: Tratamiento de color HSV nativo por GPU
-   ======================================================================= */
+/* Capas del Parallax */
 .layer {
     position: absolute;
     bottom: 18vh;
@@ -80,7 +84,6 @@ body {
     transition: filter 1s ease;
 }
 
-/* Valores base de brillo y contraste para dar profundidad */
 .layer-far {
     z-index: 3;
     background-image: url('assets/sprites/background/BackGroundFar.png');
@@ -101,57 +104,52 @@ body {
     background-size: auto 90%;
     filter: brightness(0.8) saturate(1);
 }
-.ground {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    /* 🌟 IMPORTANTE: El suelo ahora mide el 100% de tu mundo horizontal */
-    width: 100%; 
-    height: 384px; /* 128px x 3 filas de tiles = 384px */
-    z-index: 6;
-
-    /* 🧱 TRUCO DE TRIPLE FONDO DESDE UN SOLO TILESET (128x128)
-       Listamos las capas desde la que está más arriba (Césped) a la de más abajo (Roca) */
-    background-image: 
-        url('assets/sprites/tileset/tileset.png'), /* Capa 1: Césped */
-        url('assets/sprites/tileset/tileset.png'), /* Capa 2: Intermedio */
-        url('assets/sprites/tileset/tileset.png'); /* Capa 3: Abajo */
-
-    background-repeat: repeat-x, repeat-x, repeat-x;
-
-    /* 📐 POSICIONAMIENTO VERTICAL DE CADA FILA (Y):
-       - El césped empieza arriba del todo (top / 0px)
-       - El intermedio empieza justo donde acaba el césped (128px)
-       - La roca/abajo empieza a los 256px */
-    background-position: 
-        0 0, 
-        0 128px, 
-        0 256px;
-
-    /* ✂️ RECORTE INTERNO DEL TILESET (Coordenadas X Y):
-       Ajustamos el tamaño para asegurarnos de que la porción de 128px encaja perfectamente. 
-       Si tu imagen completa del tileset tuviera por ejemplo 4 columnas de ancho, su tamaño horizontal 
-       sería 'auto'. Para asegurar píxeles perfectos mapeamos la escala al alto nativo de cada porción */
-    background-size: auto 128px; 
-    
-    image-rendering: pixelated; /* Píxeles nítidos retro sin desenfoque */
-}
 
 /* =======================================================================
-   GAMEPLAY: Elementos interactivos y Personaje
+   GAMEPLAY WORLD & TILESET PIPELINE
    ======================================================================= */
 #world {
     position: absolute;
-    bottom: 18vh;
+    bottom: 0;
     left: 0;
-    height: 40vh;
+    height: 100vh;
+    width: 100%;
     z-index: 7;
     will-change: transform;
 }
 
+/* Capas del suelo Pixel-Art (Matrix Fijo) */
+.ground {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: calc(var(--suelo-alto) / 3);
+    z-index: 10;
+    background-image: url('assets/sprites/tileset/tileset.png');
+    background-repeat: repeat-x;
+    background-size: calc((var(--suelo-alto) / 3) * 2) var(--suelo-alto);
+    image-rendering: pixelated;
+}
+
+.g-row-1 {
+    bottom: calc((var(--suelo-alto) / 3) * 2);
+    background-position: 0px 0px;
+}
+
+.g-row-2 {
+    bottom: calc(var(--suelo-alto) / 3);
+    background-position: 0px calc(var(--suelo-alto) / -3);
+}
+
+.g-row-3 {
+    bottom: 0;
+    background-position: 0px calc((var(--suelo-alto) / -3) * 2);
+}
+
+/* Elementos del mapa: Postes y Banderas */
 .post {
     position: absolute !important;
-    bottom: 0;
+    bottom: var(--suelo-alto);
     width: 8px;
     height: 130px;
     background: var(--char-dark);
@@ -178,13 +176,16 @@ body {
     white-space: nowrap;
 }
 
+/* =======================================================================
+   PROTAGONISTA Y EFECTOS
+   ======================================================================= */
 #character {
     position: fixed;
-    bottom: calc(18vh - 14px);
     left: 26%;
     transform: translateX(-50%);
     height: var(--ch);
-    z-index: 8;
+    z-index: 11;
+    will-change: transform;
 }
 
 #character canvas {
@@ -218,57 +219,86 @@ body {
     filter: blur(2px);
 }
 
-#character.walking ~ .dust {
-    animation: puff .42s ease-out infinite
+#character.walking~.dust {
+    animation: puff .42s ease-out infinite;
 }
 
 @keyframes puff {
-    0% { opacity: .4; transform: scale(.6) translateX(0) }
-    100% { opacity: 0; transform: scale(1.4) translateX(-22px) }
+    0% {
+        opacity: .4;
+        transform: scale(.6) translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.4) translateX(-22px);
+    }
 }
 
 /* =======================================================================
-   PIPELINE DE ILUMINACIÓN GLOBAL (Nativo en la GPU)
+   SISTEMA DE ILUMINACIÓN DINÁMICA (Zonas/Z-Index Horario)
    ======================================================================= */
+/* ☀️ VIDEOJUEGOS: Día */
 #stage[data-zone="videojuegos"] {
     background: linear-gradient(180deg, #124eb3 0%, #3a8df5 50%, #a5d1ff 100%);
 }
+
 #stage[data-zone="videojuegos"] .orb {
     background: radial-gradient(circle at 35% 35%, #fff6e0 0%, #ff9e00 50%, #e85d04 100%);
     box-shadow: 0 0 60px 25px rgba(232, 93, 4, 0.65), 0 0 140px 50px rgba(255, 158, 0, 0.35);
 }
 
+/* ⛅ UNITY: Atardecer */
 #stage[data-zone="unity"] {
     background: linear-gradient(180deg, #1d0c33 0%, #63194c 50%, #ab3340 100%);
 }
+
 #stage[data-zone="unity"] .orb {
-    background: radial-gradient(circle at 35% 35%, #ffffff 20%, #e2e8f0 60%, #cbd5e1 100%);
-    box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.5), 0 0 100px 30px rgba(226, 232, 240, 0.2);
-}
-#stage[data-zone="unity"] .layer {
-    filter: brightness(0.48) sepia(0.3) saturate(1.4) hue-rotate(-10deg);
+    background: radial-gradient(circle at 35% 35%, #ffcc00 0%, #ff5d73 60%, #63194c 100%);
+    box-shadow: 0 0 50px 15px rgba(255, 93, 115, 0.5), 0 0 120px 40px rgba(29, 12, 51, 0.4);
 }
 
+#stage[data-zone="unity"] .layer {
+    filter: brightness(0.55) sepia(0.2) saturate(1.3) hue-rotate(-5deg);
+}
+
+/* 🌙 CONCEPT: Noche */
 #stage[data-zone="concept"] {
     background: linear-gradient(180deg, #02040a 0%, #081020 60%, #0e192e 100%);
 }
+
 #stage[data-zone="concept"] .orb {
     background: radial-gradient(circle at 35% 35%, #f8fafc 0%, #cbd5e1 60%, #708090 100%);
     box-shadow: 0 0 35px 6px rgba(203, 213, 225, 0.45);
 }
+
 #stage[data-zone="concept"] .layer {
     filter: brightness(0.24) saturate(0.65) hue-rotate(15deg);
 }
 
+/* 🌌 CV: Aurora / Fin de Nivel */
+#stage[data-zone="cv"] {
+    background: linear-gradient(180deg, #05020a 0%, #110724 60%, #1b073a 100%);
+}
+
+#stage[data-zone="cv"] .orb {
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #b98cff 70%, #7b6cff 100%);
+    box-shadow: 0 0 40px 10px rgba(185, 140, 255, 0.5);
+}
+
+#stage[data-zone="cv"] .layer {
+    filter: brightness(0.2) sepia(0.4) saturate(1.5) hue-rotate(45deg);
+}
+
 /* =======================================================================
-   INTERFACE INTERFACES (HUD, MENÚS Y COMPONENTES)
+   HUD & INTERFACES GLOBALES
    ======================================================================= */
 .hud {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 10;
+    z-index: 15;
     padding: 18px 22px;
     display: flex;
     align-items: center;
@@ -284,8 +314,18 @@ body {
     letter-spacing: -.01em;
 }
 
+.hud .zone {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-left: auto;
+    transition: color .6s ease;
+}
+
 #toEnd {
-    z-index: 13;
+    z-index: 16;
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
@@ -306,16 +346,6 @@ body {
     transform: translateY(-1px);
 }
 
-.hud .zone {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-left: auto;
-    transition: color .6s ease;
-}
-
 .progress {
     position: fixed;
     top: 0;
@@ -323,7 +353,7 @@ body {
     width: 100%;
     height: 4px;
     background: rgba(255, 255, 255, .08);
-    z-index: 11
+    z-index: 11;
 }
 
 .progress .bar {
@@ -332,7 +362,7 @@ body {
     transform: scaleX(0);
     transform-origin: left;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: background .6s ease
+    transition: background .6s ease;
 }
 
 .hint {
@@ -348,47 +378,207 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: opacity .4s ease
+    transition: opacity .4s ease;
 }
 
 .hint .key {
     border: 1px solid rgba(255, 255, 255, .3);
     border-radius: 4px;
-    padding: 2px 7px
+    padding: 2px 7px;
 }
 
-.card {
+/* =======================================================================
+   SISTEMA DE CARRUSEL CON PREVIEW INTERACTIVA
+   ======================================================================= */
+
+/* Contenedor de la cola de tarjetas */
+/* =======================================================================
+   SISTEMA DE CARRUSEL ADAPTATIVO CON RECORTE GEOMÉTRICO (CLIP-PATH)
+   ======================================================================= */
+
+/* Contenedor principal */
+.card-container {
     position: fixed;
     right: 5%;
     top: 50%;
-    transform: translateY(-50%) translateX(40px);
+    transform: translateY(-50%);
     z-index: 12;
-    width: min(420px, 86vw);
-    background: rgba(16, 12, 28, .82);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 18px;
-    overflow: hidden;
-    opacity: 0;
+    display: flex;
+     flex-direction: row;
+    gap: 24px;
     pointer-events: none;
-    transition: opacity .45s ease, transform .45s cubic-bezier(.2, .8, .2, 1)
+    opacity: 0;
+    transition: opacity 0.4s ease, right 0.5s cubic-bezier(.25, 1, .5, 1);
 }
 
+/* Activación del contenedor */
+.card-container.show {
+    opacity: 1;
+    right: 4%; 
+    pointer-events: auto;
+}
+
+/* Tarjeta base */
+.card {
+    width: 380px;
+    background: rgba(16, 12, 28, 0.93);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0; 
+    
+    /* Estado oculto inicial fuera de pantalla */
+    opacity: 0;
+    transform: translateX(60px) scale(0.92);
+    
+    /* Transición elástica original de las cartas */
+    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
+                opacity 0.4s ease, 
+                filter 0.3s ease;
+}
+.card.switching {
+    opacity: 0.2;
+    transform: scale(0.9) translateX(-20px);
+    filter: blur(4px);
+    transition: transform 0.2s ease-in, opacity 0.2s ease-in, filter 0.2s ease-in;
+}
+
+/* Tarjeta principal activa */
 .card.show {
     opacity: 1;
-    transform: translateY(-50%) translateX(0);
-    pointer-events: auto
+    transform: translateX(0) scale(1);
 }
 
-/* 🌟 SECCIÓN OPTIMIZADA: Resolución completa sin recortes */
+/* 🌟 LA PREVIEW: Mitad exacta transparente, salida de pantalla y texto legible */
+/* 🌟 LA PREVIEW: Configuración de posición y separación */
+.card.preview-next {
+    opacity: 0.6 !important; /* Subimos la opacidad base para que los textos brillen */
+    filter: grayscale(20%);
+    pointer-events: none;
+    position: relative; /* Esencial para posicionar la capa de degradado encima */
+    
+    /* 💥 CORRECCIÓN SEPARACIÓN: Cambiamos de -120px a -50px para que no se solapen */
+    margin-left: -40px; 
+    transform: scale(0.88) !important;
+    
+    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), 
+                opacity 0.4s ease, 
+                margin-left 0.5s ease;
+
+    /* Fondo normal sin degradados directos que rompan los textos */
+    background: rgba(16, 12, 28, 0.93) !important;
+}
+
+/* ✂️ CAPA DE NIEBLA DE DERECHA A IZQUIERDA: 
+   Esta capa se pone por encima de las imágenes y textos, difuminando SOLO el lado derecho.
+   El lado izquierdo se mantiene intacto (Alfa = 1). */
+.card.preview-next::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5; /* Se sitúa por encima del texto e imágenes de la preview */
+    
+    /* Degradado: de transparente (izquierda) a opaco total igual que el fondo (derecha) */
+    background: linear-gradient(90deg, 
+        rgba(16, 12, 28, 0) 0%, 
+        rgba(16, 12, 28, 0) 35%, 
+        rgba(16, 12, 28, 0.7) 65%, 
+        rgba(16, 12, 28, 1) 100%
+    ) !important;
+}
+
+/* ❌ ELIMINAR MÁSCARAS CONFLICTIVAS: 
+   Limpiamos las máscaras que le habíamos puesto antes a los hijos 
+   para que no vuelvan transparente el texto de la izquierda por error */
+.card.preview-next .body,
+.card.preview-next .media {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* 🏷️ EL BADGE DE "SIGUIENTE": Forzamos a que se renderice por encima de la niebla */
+.card.preview-next .badge {
+    position: relative;
+    z-index: 6; /* Mayor que el z-index de la niebla (5) */
+    background: var(--accent, #00d2ff) !important; /* Usará el azul de herramientas Unity */
+    color: #100c1c !important;
+    font-weight: 800;
+    opacity: 1 !important;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+/* =======================================================================
+   REGLAS RESPONSIVAS PARA DISPOSITIVOS MÓVILES (MEDIA QUERIES)
+   ======================================================================= */
+/* =======================================================================
+   REGLAS RESPONSIVAS PARA DISPOSITIVOS MÓVILES (MÉTODO COLUMNA)
+   ======================================================================= */
+@media (max-width: 768px) {
+    /* Contenedor: Lo centramos en pantalla y lo subimos un poco (top: 42%) 
+       para dejar aire a los botones de la cruceta táctil */
+    .card-container {
+        right: 0% !important;
+        width: 100vw;
+        top: 42%; 
+        transform: translateY(-50%);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 12px; /* Espaciado vertical entre la carta y su preview inferior */
+    }
+
+    .card-container.show {
+        right: 0% !important;
+    }
+
+    /* Redimensionamos la tarjeta para que quepa bien en pantallas verticales */
+    .card {
+        width: 85vw; /* Aprovecha mejor el ancho del móvil */
+        max-height: 38vh; /* Evita que se estire demasiado hacia abajo */
+        border-radius: 12px;
+    }
+
+    /* 🌟 CONFIGURACIÓN DE LA PREVIEW EN INFERIOR */
+    .card.preview-next {
+        margin-left: 0px !important; /* Quitamos el margen lateral de escritorio */
+        margin-top: 0px; 
+        transform: scale(0.9) !important;
+        opacity: 0.5 !important;
+        max-height: 12vh; /* La hacemos chatita para que solo asome el título */
+    }
+
+    /* ✂️ REDIRECCIÓN DE LA NIEBLA (De arriba a abajo):
+       Hacemos que el degradado caiga de forma vertical (180deg) para que el 
+       texto superior de la preview sea 100% visible y se difumine hacia la parte baja. */
+    .card.preview-next::after {
+        background: linear-gradient(180deg, 
+            rgba(16, 12, 28, 0) 0%, 
+            rgba(16, 12, 28, 0.2) 40%, 
+            rgba(16, 12, 28, 0.8) 80%, 
+            rgba(16, 12, 28, 1) 100%
+        ) !important;
+    }
+
+    /* Forzamos que el badge de "Siguiente" no se mueva en móvil */
+    .card.preview-next .badge {
+        transform: translateX(0px) !important;
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+}
+
+/* Estructura Interna de las Tarjetas */
 .card .media {
     height: 190px;
-    background-color: #07050d;               /* Fondo oscuro profundo de respaldo */
+    background-color: #07050d;
     background-position: center;
-    background-size: contain;                /* Muestra la imagen al 100% de escala sin recortar */
+    background-size: contain;
     background-repeat: no-repeat;
-    padding: 14px;                           /* Margen de seguridad interno para "enmarcar" la imagen */
-    box-sizing: border-box;
+    padding: 14px;
     position: relative;
     display: flex;
     align-items: center;
@@ -402,10 +592,9 @@ body {
     color: rgba(255, 255, 255, .4);
     letter-spacing: .1em;
     text-align: center;
-    padding: 0 20px
+    padding: 0 20px;
 }
 
-/* Ajustado para que el badge flote correctamente con el nuevo padding */
 .card .badge {
     position: absolute;
     top: 14px;
@@ -419,11 +608,11 @@ body {
     border-radius: 999px;
     background: var(--accent);
     color: #0c0a14;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .card .body {
-    padding: 20px 22px 22px
+    padding: 20px 22px 22px;
 }
 
 .card h3 {
@@ -431,7 +620,7 @@ body {
     font-weight: 800;
     font-size: 24px;
     letter-spacing: -.02em;
-    line-height: 1.05
+    line-height: 1.05;
 }
 
 .card .meta {
@@ -439,20 +628,20 @@ body {
     font-size: 11px;
     color: rgba(255, 255, 255, .55);
     margin: 6px 0 12px;
-    letter-spacing: .04em
+    letter-spacing: .04em;
 }
 
 .card p {
     font-size: 14px;
     line-height: 1.55;
-    color: rgba(255, 255, 255, .82)
+    color: rgba(255, 255, 255, .82);
 }
 
 .card .links {
     display: flex;
     gap: 10px;
     margin-top: 16px;
-    flex-wrap: wrap
+    flex-wrap: wrap;
 }
 
 .card .links a {
@@ -464,20 +653,22 @@ body {
     border-radius: 10px;
     color: #0c0a14;
     background: var(--accent);
-    transition: transform .15s ease
+    transition: transform .15s ease;
 }
 
 .card .links a.ghost {
     background: transparent;
     color: var(--paper);
-    border: 1px solid rgba(255, 255, 255, .25)
+    border: 1px solid rgba(255, 255, 255, .25);
 }
 
 .card .links a:hover {
-    transform: translateY(-2px)
+    transform: translateY(-2px);
 }
 
-/* ---------- Intro ---------- */
+/* =======================================================================
+   INTRO SCREEN
+   ======================================================================= */
 #intro {
     position: fixed;
     inset: 0;
@@ -488,14 +679,13 @@ body {
     align-items: center;
     justify-content: center;
     gap: 26px;
-    transition: opacity .6s ease
+    transition: opacity .6s ease;
 }
 
 #intro.hide {
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
-    transition: opacity 0.5s ease;
 }
 
 #intro h1 {
@@ -504,14 +694,14 @@ body {
     font-size: clamp(36px, 8vw, 76px);
     letter-spacing: -.03em;
     text-align: center;
-    line-height: .98
+    line-height: .98;
 }
 
 #intro h1 span {
     background: linear-gradient(90deg, var(--z1-a), var(--z2-a), var(--z3-a));
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent
+    color: transparent;
 }
 
 #intro .sub {
@@ -519,7 +709,7 @@ body {
     font-size: 13px;
     letter-spacing: .18em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, .55)
+    color: rgba(255, 255, 255, .55);
 }
 
 #start {
@@ -534,35 +724,91 @@ body {
     cursor: pointer;
     color: #0c0a14;
     background: linear-gradient(90deg, var(--z1-a), var(--z1-b));
-    transition: transform .15s ease, box-shadow .2s ease
+    transition: transform .15s ease, box-shadow .2s ease;
 }
 
 #start:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 30px -8px var(--z1-a)
+    box-shadow: 0 12px 30px -8px var(--z1-a);
 }
 
 #start:focus-visible,
 .links a:focus-visible,
 #toEnd:focus-visible {
     outline: 3px solid #fff;
-    outline-offset: 3px
-}
-
-#scroll-spacer {
-    position: relative;
-    z-index: 0
-}
-
-@media (prefers-reduced-motion: reduce) {
-    #character canvas { animation: none !important }
-    .card { transition: opacity .2s linear }
+    outline-offset: 3px;
 }
 
 /* =======================================================================
-   RESPONSIVE MÓVIL
+   CONTROLES TÁCTILES MÓVILES (D-PAD & ACCIÓN)
    ======================================================================= */
-@media (max-width:600px) {
+.d-pad {
+    position: fixed;
+    bottom: 5vh;
+    left: 5%;
+    z-index: 99;
+    display: none;
+    /* Controlado mediante Media Query */
+    gap: 14px;
+}
+
+.action-pad {
+    position: fixed;
+    bottom: 5vh;
+    right: 5%;
+    z-index: 99;
+    display: none;
+}
+
+.pad-btn {
+    width: 60px;
+    height: 60px;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--paper);
+    background: rgba(12, 10, 20, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+
+.pad-btn.jump-btn {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.pad-btn:active {
+    background: var(--accent);
+    color: var(--ink);
+    border-color: var(--accent);
+    transform: scale(0.9);
+}
+
+/* =======================================================================
+   MEDIA QUERIES (RESPONSIVE & ACCESIBILIDAD)
+   ======================================================================= */
+
+/* 📱 Dispositivos Móviles y Tablets medianas */
+@media (max-width: 1023px) {
+    .d-pad {
+        display: flex;
+    }
+
+    .action-pad {
+        display: block;
+    }
+}
+
+/* 📱 Smartphones y Pantallas Pequeñas */
+@media (max-width: 600px) {
     :root {
         --ch: 110px;
     }
@@ -576,104 +822,80 @@ body {
         gap: 12px;
     }
 
-    .card {
-        right: 50%;
-        transform: translate(50%, 30px);
-        top: auto;
-        bottom: 24vh;
-        width: 88vw;
-    }
-
-    .card.show {
-        transform: translate(50%, 0);
-    }
-
-    .card .media {
-        height: 150px;
-        padding: 10px;                       /* Un pelín menos de padding en móviles */
-    }
-}
-/* =======================================================================
-   EXTENSION: CONTROL POR CRUCETA (D-PAD) Y PREPARACIÓN DE GRAVEDAD
+   /* =======================================================================
+   CARRUSEL DE TARJETAS (CON ANIMACIONES Y MÁSCARA DE DEGRADADO)
    ======================================================================= */
 
-/* Anulamos por completo el scroll manual e interactivo nativo del body */
-body {
-    overflow: hidden !important;
-    touch-action: none; /* Evita gestos raros de arrastre en móviles */
-}
-
-/* Forzar que el spacer mantenga tamaño pero no genere scroll real */
-#scroll-spacer {
-    display: none;
-}
-
-/* Ajuste base de transiciones de salto para evitar vibraciones en GPU */
-#character {
-    will-change: transform;
-    transition: filter 0.6s ease; /* Quitamos transform de aquí para que no interfiera con las físicas en JS */
-}
-
-/* DISEÑO DE LA CRUCETA ARCADE */
-.d-pad {
+/* Contenedor principal */
+.card-container {
     position: fixed;
-    bottom: 4vh;
-    left: 4%;
-    z-index: 99;
+    right: -100px; /* Empezamos un poco más hacia afuera */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 12;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    pointer-events: auto; /* Asegura clics dentro de stage */
+    gap: 20px; /* Reducimos un poco el gap para que la preview se acople mejor */
+    pointer-events: none;
+    opacity: 0;
+    /* Transición suave para cuando aparece todo el contenedor */
+    transition: right 0.55s cubic-bezier(.2, .8, .2, 1), opacity 0.5s ease;
 }
 
-.pad-row {
-    display: flex;
-    gap: 34px;
+/* Cuando el contenedor se activa (Personaje cerca de un poste) */
+.card-container.show {
+    opacity: 1;
+    right: 2%; /* Lo pegamos más a la derecha para ganar espacio de juego */
+    pointer-events: auto;
 }
 
-.pad-btn {
-    width: 54px;
-    height: 54px;
-    font-family: var(--font-mono);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--paper);
-    background: rgba(12, 10, 20, 0.6);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    transition: background 0.15s, transform 0.1s, border-color 0.15s;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+/* La tarjeta individual e interiores */
+.card {
+    width: min(420px, 75vw);
+    background: rgba(16, 12, 28, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    overflow: hidden;
+    flex-shrink: 0; 
+    opacity: 0;
+    transform: translateX(50px) scale(0.95);
+    /* Recuperamos la animación de interpolación elástica original */
+    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), opacity 0.4s ease;
 }
 
-.pad-btn:active {
-    background: var(--accent);
-    color: var(--ink);
-    border-color: var(--accent);
-    transform: scale(0.92);
+/* ANIMACIÓN: Cuando la tarjeta se activa de verdad */
+.card.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
 }
 
-/* Ocultar la cruceta por defecto en ordenadores de sobremesa para no romper el minimalismo */
-@media (min-width: 1024px) {
-    .d-pad {
-        display: none; /* Se juega limpiamente con Teclado (Flechas/WASD) */
-    }
+/* 🌟 LA PREVIEW SIGUIENTE (Cortada a la mitad con degradado de opacidad) */
+.card.preview-next {
+    opacity: 0.6 !important; /* Subimos la opacidad base porque el degradado ya la suaviza */
+    transform: translateX(-40px) scale(0.9) !important; /* La encajamos un poco por debajo de la principal */
+    filter: blur(1px) grayscale(30%);
+    pointer-events: none;
+    
+    /* ✂️ MÁSCARA: Izquierda alfa=1 (sólido) hasta el 20%, derecha alfa=0 (transparente) en el 70% */
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
+    mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
 }
 
-@media (max-width: 600px) {
-    .d-pad {
-        bottom: 3vh;
-        left: 6%;
-    }
     .pad-btn {
-        width: 46px;
-        height: 46px;
-        font-size: 14px;
+        width: 52px;
+        height: 52px;
+        font-size: 16px;
+    }
+}
+
+/* ♿ Accesibilidad: Reducción de Animaciones */
+@media (prefers-reduced-motion: reduce) {
+    #character canvas {
+        animation: none !important;
+    }
+
+    .card-container,
+    .card {
+        transition: opacity .2s linear;
     }
 }

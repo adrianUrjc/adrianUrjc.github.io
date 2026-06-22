@@ -17,11 +17,22 @@ const CONCEPTS_DATA = [
         description: "Primer modelo hecho en 3ds Max. Modelado orgánico de un personaje para un trabajo de la universidad.",
         image: "assets/concepts/Testing3dsMax.png"
     },
+     {
+        title: "Primer render hecho en Blender",
+        description: "Primer modelo hecho en Blender. Modelado orgánico siguiendo un tutorial de Blender.",
+        image: "assets/concepts/Render1Blender.png"
+    },
+    {
+        title: "Segundo render hecho en Blender",
+        description: "Modelo original creado en Blender.",
+        image: "assets/concepts/Render2Blender.png"
+    },
     {
         title: "Rigging de personaje hecho en Blender",
         description: "Primer modelo hecho en Blender. Sirvió para aprender a utilizar la herramienta y transicionar de 3ds Max.",
         image: "assets/concepts/CharacterRigging.png"
     },
+
     {
         title: "Modelado de personajes para el juego Deep Within hecho en Blender",
         description: "Modelos creados para el juego de Jam Deep Within. Primera creación de modelos de estilo low poly.",
@@ -71,6 +82,11 @@ const CONCEPTS_DATA = [
         title: "Concept genérico de Legado de Sangre",
         description: "Lluvia de ideas plasmada en una capa de Krita sobre el diseño general de los enemigos de Legado de Sangre",
         image: "assets/concepts/LegadoDeSangreConcept2.png"
+    },
+     {
+        title: "Diagrama de clases",
+        description: "Diagrama de clases realizado para esquematizar la lógica de la carga y el guardado del juego.",
+        image: "assets/concepts/DiagramaClases.png"
     },
     {
         title: "Pantalla de inicio de Legado de Sangre",

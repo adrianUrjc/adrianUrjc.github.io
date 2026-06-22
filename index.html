@@ -28,7 +28,7 @@
     <div class="sub" style="opacity:.5; font-size:11px">Desplázate para avanzar</div>
   </div>
 
-  <div id="stage" data-zone="videojuegos" aria-hidden="true">
+  <div id="stage" data-zone="videojuegos">
 
     <div class="orb"></div>
 
@@ -36,10 +36,10 @@
     <div class="layer layer-mid"></div>
     <div class="layer layer-close"></div>
 
-
-
     <div id="world">
-      <div class="ground"></div>
+      <div class="ground g-row-1"></div>
+      <div class="ground g-row-2"></div>
+      <div class="ground g-row-3"></div>
     </div>
 
     <div id="character">
@@ -51,11 +51,12 @@
     <div class="dust"></div>
 
     <div class="d-pad">
-      <button id="pad-up" class="pad-btn">▲</button>
-      <div class="pad-row">
-        <button id="pad-left" class="pad-btn">◀</button>
-        <button id="pad-right" class="pad-btn">▶</button>
-      </div>
+      <button class="pad-btn" id="btn-left">◀</button>
+      <button class="pad-btn" id="btn-right">▶</button>
+    </div>
+
+    <div class="action-pad">
+      <button class="pad-btn jump-btn" id="btn-up">A</button>
     </div>
 
     <div class="progress">
@@ -68,20 +69,27 @@
       <span class="zone">Inicio</span>
     </div>
 
-    <div class="hint"><span class="key">◀ / ▶</span> o <span class="key">A / D</span> Moverse · <span
-        class="key">▲</span> o <span class="key">Espacio</span> Saltar</div>
-  </div>
-
-  <div class="card" id="card" role="dialog" aria-live="polite">
-    <div class="media"><span class="badge"></span><span class="placeholder"></span></div>
-    <div class="body">
-      <h3></h3>
-      <div class="meta"></div>
-      <p></p>
-      <div class="links"></div>
+    <div class="hint">
+      <span class="key">◀ / ▶</span> o <span class="key">A / D</span> Moverse · 
+      <span class="key">▲</span> o <span class="key">Espacio</span> Saltar
     </div>
-  </div>
 
+    <div id="card-container" class="card-container">
+      <div class="card" id="project-card">
+        <div class="media">
+          <span class="badge"></span>
+          <div class="placeholder"></div>
+        </div>
+        <div class="body">
+          <h3></h3>
+          <div class="meta"></div>
+          <p></p>
+          <div class="links"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
   <div id="scroll-spacer"></div>
 
   <script src="projects.js"></script>
