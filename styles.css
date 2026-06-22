@@ -101,15 +101,40 @@ body {
     background-size: auto 90%;
     filter: brightness(0.8) saturate(1);
 }
-
 .ground {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    height: 18vh;
-    background: linear-gradient(180deg, var(--char-dark), #000);
+    /* 🌟 IMPORTANTE: El suelo ahora mide el 100% de tu mundo horizontal */
+    width: 100%; 
+    height: 384px; /* 128px x 3 filas de tiles = 384px */
     z-index: 6;
+
+    /* 🧱 TRUCO DE TRIPLE FONDO DESDE UN SOLO TILESET (128x128)
+       Listamos las capas desde la que está más arriba (Césped) a la de más abajo (Roca) */
+    background-image: 
+        url('assets/sprites/tileset/tileset.png'), /* Capa 1: Césped */
+        url('assets/sprites/tileset/tileset.png'), /* Capa 2: Intermedio */
+        url('assets/sprites/tileset/tileset.png'); /* Capa 3: Abajo */
+
+    background-repeat: repeat-x, repeat-x, repeat-x;
+
+    /* 📐 POSICIONAMIENTO VERTICAL DE CADA FILA (Y):
+       - El césped empieza arriba del todo (top / 0px)
+       - El intermedio empieza justo donde acaba el césped (128px)
+       - La roca/abajo empieza a los 256px */
+    background-position: 
+        0 0, 
+        0 128px, 
+        0 256px;
+
+    /* ✂️ RECORTE INTERNO DEL TILESET (Coordenadas X Y):
+       Ajustamos el tamaño para asegurarnos de que la porción de 128px encaja perfectamente. 
+       Si tu imagen completa del tileset tuviera por ejemplo 4 columnas de ancho, su tamaño horizontal 
+       sería 'auto'. Para asegurar píxeles perfectos mapeamos la escala al alto nativo de cada porción */
+    background-size: auto 128px; 
+    
+    image-rendering: pixelated; /* Píxeles nítidos retro sin desenfoque */
 }
 
 /* =======================================================================
@@ -566,5 +591,89 @@ body {
     .card .media {
         height: 150px;
         padding: 10px;                       /* Un pelín menos de padding en móviles */
+    }
+}
+/* =======================================================================
+   EXTENSION: CONTROL POR CRUCETA (D-PAD) Y PREPARACIÓN DE GRAVEDAD
+   ======================================================================= */
+
+/* Anulamos por completo el scroll manual e interactivo nativo del body */
+body {
+    overflow: hidden !important;
+    touch-action: none; /* Evita gestos raros de arrastre en móviles */
+}
+
+/* Forzar que el spacer mantenga tamaño pero no genere scroll real */
+#scroll-spacer {
+    display: none;
+}
+
+/* Ajuste base de transiciones de salto para evitar vibraciones en GPU */
+#character {
+    will-change: transform;
+    transition: filter 0.6s ease; /* Quitamos transform de aquí para que no interfiera con las físicas en JS */
+}
+
+/* DISEÑO DE LA CRUCETA ARCADE */
+.d-pad {
+    position: fixed;
+    bottom: 4vh;
+    left: 4%;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto; /* Asegura clics dentro de stage */
+}
+
+.pad-row {
+    display: flex;
+    gap: 34px;
+}
+
+.pad-btn {
+    width: 54px;
+    height: 54px;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--paper);
+    background: rgba(12, 10, 20, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.pad-btn:active {
+    background: var(--accent);
+    color: var(--ink);
+    border-color: var(--accent);
+    transform: scale(0.92);
+}
+
+/* Ocultar la cruceta por defecto en ordenadores de sobremesa para no romper el minimalismo */
+@media (min-width: 1024px) {
+    .d-pad {
+        display: none; /* Se juega limpiamente con Teclado (Flechas/WASD) */
+    }
+}
+
+@media (max-width: 600px) {
+    .d-pad {
+        bottom: 3vh;
+        left: 6%;
+    }
+    .pad-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 14px;
     }
 }

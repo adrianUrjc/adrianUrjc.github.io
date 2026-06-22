@@ -12,7 +12,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -27,35 +29,47 @@
   </div>
 
   <div id="stage" data-zone="videojuegos" aria-hidden="true">
-    
+
     <div class="orb"></div>
 
     <div class="layer layer-far"></div>
     <div class="layer layer-mid"></div>
-    <div class="layer layer-close"></div> 
-    
-    <div class="ground"></div>
+    <div class="layer layer-close"></div>
 
-    <div id="world"></div>
+
+
+    <div id="world">
+      <div class="ground"></div>
+    </div>
 
     <div id="character">
       <canvas class="idle"></canvas>
       <canvas class="walk"></canvas>
+      <canvas class="jump"></canvas>
     </div>
-    
+
     <div class="dust"></div>
+
+    <div class="d-pad">
+      <button id="pad-up" class="pad-btn">▲</button>
+      <div class="pad-row">
+        <button id="pad-left" class="pad-btn">◀</button>
+        <button id="pad-right" class="pad-btn">▶</button>
+      </div>
+    </div>
 
     <div class="progress">
       <div class="bar"></div>
     </div>
-    
+
     <div class="hud">
       <span class="name">Adrián Gómez-Lobo Núñez</span>
       <a id="toEnd" href="#" title="Saltar al final">CV / Contacto ⏭</a>
       <span class="zone">Inicio</span>
     </div>
-    
-    <div class="hint"><span class="key">scroll</span> avanzar por el nivel</div>
+
+    <div class="hint"><span class="key">◀ / ▶</span> o <span class="key">A / D</span> Moverse · <span
+        class="key">▲</span> o <span class="key">Espacio</span> Saltar</div>
   </div>
 
   <div class="card" id="card" role="dialog" aria-live="polite">

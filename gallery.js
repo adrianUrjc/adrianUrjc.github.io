@@ -16,8 +16,7 @@ const CONCEPTS_DATA = [
         title: "Personaje hecho en 3ds Max",
         description: "Primer modelo hecho en 3ds Max. Modelado orgánico de un personaje para un trabajo de la universidad.",
         image: "assets/concepts/Testing3dsMax.png"
-    }
-    ,
+    },
     {
         title: "Rigging de personaje hecho en Blender",
         description: "Primer modelo hecho en Blender. Sirvió para aprender a utilizar la herramienta y transicionar de 3ds Max.",
@@ -62,8 +61,7 @@ const CONCEPTS_DATA = [
         title: "Concept del protagonista de Legado de Sangre",
         description: "Desarrollo del turnaround de Alex, protagonista de Legado de sangre",
         image: "assets/concepts/CharacterConcept3.png"
-    }
-    ,
+    },
     {
         title: "Concept de enemigo de Legado de Sangre",
         description: "Concept temprano sobre el enemigo Abuelo. Sirve para definir las dimensiones del monstruo y su personalidad.",
@@ -88,14 +86,12 @@ const CONCEPTS_DATA = [
         title: "Concept de personaje de un concurso de dibujo",
         description: "Concept de personaje basado en el tema mitología. Representa a un wendigo aullando a la luna llena en mitad de un bosque oscuro.",
         image: "assets/concepts/DrawingContestConcept.png"
-    }
-    ,
+    },
     {
         title: "Personaje coloreado con el estilo Street Fighter",
         description: "Coloreado de un personaje estilo Street Fighter usando colores planos.",
         image: "assets/concepts/JCStreetFighter.png"
-    }
-    ,
+    },
     {
         title: "Dibujo de Grogu hecho en Krita",
         description: "Dibujo y coloreado de Grogu de la serie Mandalorian. Se ha usado un estilo sencillo para colorearlo.",
@@ -108,8 +104,9 @@ const container = document.getElementById('gallery-container');
 
 // Renderizado automático de tarjetas en la rejilla
 function renderGallery() {
+    // Añadimos 'style="cursor: pointer;"' y el atributo 'onclick' pasando la URL de la imagen de forma segura
     container.innerHTML = CONCEPTS_DATA.map(concept => `
-        <article class="g-card">
+        <article class="g-card" style="cursor: pointer;" onclick="openModal('${concept.image}', '${concept.title}')">
             <div class="media" style="background-image: url('${concept.image}');" role="img" aria-label="${concept.title}"></div>
             <div class="body">
                 <h3>${concept.title}</h3>
@@ -117,6 +114,34 @@ function renderGallery() {
             </div>
         </article>
     `).join('');
+}
+
+// --- LÓGICA DEL MODAL ---
+
+// Creamos e inyectamos el HTML del modal dinámicamente para que no tengas que tocar tu HTML base
+const modalHTML = `
+    <div id="image-modal" class="custom-modal" onclick="closeModal()">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="modal-img" alt="Concept Art Ampliado">
+        <div id="modal-caption"></div>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+const modal = document.getElementById('image-modal');
+const modalImg = document.getElementById('modal-img');
+const captionText = document.getElementById('modal-caption');
+
+// Función para abrir el modal
+function openModal(imageSrc, title) {
+    modal.style.display = "flex"; // Usamos flex para centrar perfectamente la imagen
+    modalImg.src = imageSrc;
+    captionText.innerHTML = title;
+}
+
+// Función para cerrar el modal
+function closeModal() {
+    modal.style.display = "none";
 }
 
 // Inicializar galería al cargar la página

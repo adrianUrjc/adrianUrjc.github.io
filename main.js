@@ -1,7 +1,7 @@
 /* =======================================================================
-   MOTOR — Mueve el mundo con el scroll, anima el HUD y muestra las tarjetas.
+   MOTOR MODIFICADO — Movimiento por cruceta, físicas de salto y gravedad.
    ======================================================================= */
-console.log("¡El script del motor ha arrancado!");
+console.log("¡El script del motor híbrido ha arrancado con físicas!");
 
 // 1. Elementos del DOM
 const spacer = document.getElementById('scroll-spacer');
@@ -14,9 +14,6 @@ const card = document.getElementById('card');
 const far = document.querySelector('.layer-far');
 const mid = document.querySelector('.layer-mid');
 const close = document.querySelector('.layer-close');
-const sky1 = document.querySelector('.sky--1');
-const sky2 = document.querySelector('.sky--2');
-const sky3 = document.querySelector('.sky--3');
 const hint = document.querySelector('.hint');
 const root = document.documentElement;
 
@@ -32,15 +29,28 @@ let activeZone = '';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Comprobamos si las dependencias externas existen
-if (typeof projects === 'undefined') console.error("❌ ERROR: 'projects' NO está definido. Revisa tu HTML.");
-else console.log("✅ 'projects' cargado correctamente con", projects.length, "elementos.");
+// --- NUEVAS VARIABLES DE FÍSICAS Y CONTROLES ---
+let virtualScrollY = 0; // Controlará el avance horizontal del nivel de manera virtual
+let maxScrollValue = 0;
 
-if (typeof ZONE === 'undefined') console.error("❌ ERROR: 'ZONE' NO está definido. Revisa tu HTML.");
-else console.log("✅ 'ZONE' cargado correctamente.");
+// Configuración física del Personaje
+const physics = {
+    y: 0,            // Altura de salto actual (0 = suelo)
+    vy: 0,           // Velocidad vertical
+    gravity: 0.4,    // Fuerza de gravedad
+    jumpImpulse: 15, // Impulso inicial hacia arriba
+    isJumping: false
+};
 
-/* --- Animador de sprites por CANVAS --------------------------------------- */
-const SPRITE_VER = '6';
+// Captura de inputs en tiempo real
+const keys = { Left: false, Right: false, Up: false };
+
+// Comprobamos dependencias
+if (typeof projects === 'undefined') console.error("❌ ERROR: 'projects' NO está definido.");
+if (typeof ZONE === 'undefined') console.error("❌ ERROR: 'ZONE' NO está definido.");
+
+/* --- Animador de sprites por CANVAS (Añadido 'jump') ------------------------- */
+const SPRITE_VER = '7';
 const SPRITES = {
   walk: {
     el: character ? character.querySelector('canvas.walk') : null,
@@ -52,6 +62,11 @@ const SPRITES = {
     src: 'assets/sprites/UncleBellyAnimations/IdleSpriteSheet.png',
     cols: 36, rows: 1, frames: 36, fps: 11
   },
+  jump: { // 🌟 NUEVA SPRITE SHEET PARA EL SALTO
+    el: character ? character.querySelector('canvas.jump') : null,
+    src: 'assets/sprites/UncleBellyAnimations/JumpSpriteSheet.png', // Modifica esta ruta si es diferente
+    cols: 33, rows: 1, frames: 33, fps: 24 // Cambia columnas/frames según tenga tu sheet de salto
+  }
 };
 
 for (const k in SPRITES) {
@@ -86,74 +101,78 @@ function stepSprites(now) {
   if (reduceMotion) return;
 
   const walking = character ? character.classList.contains('walking') : false;
+  const jumping = physics.isJumping;
 
   for (const k in SPRITES) {
     const s = SPRITES[k];
     if (!s.el) continue;
 
-    // Intercambio de visibilidad y REINICIO de frame (Corregido)
+    // Control riguroso de qué Sprite Sheet se despliega
+    if (k === 'jump') {
+        if (!jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+        else { s.el.style.display = 'block'; }
+    }
     if (k === 'walk') {
-      if (!walking) {
-        s.el.style.display = 'none';
-        s.frame = 0;
-        continue;
-      }
-      else { s.el.style.display = 'block'; }
+        if (!walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+        else { s.el.style.display = 'block'; }
     }
     if (k === 'idle') {
-      if (walking) {
-        s.el.style.display = 'none'; // Sub-propiedad duplicada solucionada aquí
-        s.frame = 0;
-        continue;
-      }
-      else { s.el.style.display = 'block'; }
+        if (walking || jumping) { s.el.style.display = 'none'; s.frame = 0; continue; }
+        else { s.el.style.display = 'block'; }
     }
 
     s.acc += dt;
     const dur = 1000 / s.fps;
     let changed = false;
-    while (s.acc >= dur) { s.acc -= dur; s.frame = (s.frame + 1) % s.frames; changed = true; }
+    while (s.acc >= dur) { 
+        s.acc -= dur; 
+        // Si es animación de salto, se puede quedar fija en el último frame si sigue en el aire
+        if (k === 'jump' && s.frame === s.frames - 1) {
+            changed = true;
+            break;
+        }
+        s.frame = (s.frame + 1) % s.frames; 
+        changed = true; 
+    }
     if (changed) drawSprite(s);
   }
 }
 
 function layout() {
   if (!spacer || !world) return;
-
-  spacer.style.height = (window.innerHeight * SCROLL_VIEWPORTS) + 'px';
-  charX = window.innerWidth * (window.innerWidth < 600 ? 0.18 : 0.26);
+  
+  // 1. EL CAMBIO CLAVE: Definimos el tamaño del nivel por software (7 pantallas de ancho)
   worldTravel = window.innerWidth * (SCROLL_VIEWPORTS - 1);
+  maxScrollValue = worldTravel; // Ahora el límite es el tamaño real del mapa, no el scroll del navegador
 
+  charX = window.innerWidth * (window.innerWidth < 600 ? 0.18 : 0.26);
   world.style.width = (worldTravel + window.innerWidth) + 'px';
 
-  // 📐 Ajuste de escalas matemáticas para evitar cortes según su nueva profundidad
-  if (far) far.style.width = (worldTravel * 0.12 + window.innerWidth) + 'px';   /* Súper lejos */
-  if (mid) mid.style.width = (worldTravel * 0.35 + window.innerWidth) + 'px';   /* Distancia media */
-  if (close) close.style.width = (worldTravel * 0.68 + window.innerWidth) + 'px'; /* 🌟 Muy cerca */
+  if (far) far.style.width = (worldTravel * 0.12 + window.innerWidth) + 'px';
+  if (mid) mid.style.width = (worldTravel * 0.35 + window.innerWidth) + 'px';
+  if (close) close.style.width = (worldTravel * 0.68 + window.innerWidth) + 'px';
 
   buildPosts();
 }
+
+
+
 function setAccent(zoneKey){
   if(zoneKey === activeZone || typeof ZONE === 'undefined') return;
   activeZone = zoneKey;
   const z = ZONE[zoneKey];
   if(!z) return;
   
-  // 1. Actualizamos las variables de acento para el Personaje y los Postes
   if(root) {
     root.style.setProperty('--accent', `var(${z.a})`);
     root.style.setProperty('--accent2', `var(${z.b})`);
   }
   
-  // 2. ⚡ LA CLAVE DEL RENDIMIENTO: Cambiar el estado del escenario.
-  // La GPU se encarga de hacer la transición suave de cielos, filtros y sol/luna.
   const stageEl = document.getElementById('stage');
-  if(stageEl) {
-    stageEl.dataset.zone = zoneKey; 
-  }
-  
+  if(stageEl) stageEl.dataset.zone = zoneKey; 
   if(zoneLabel) zoneLabel.textContent = z.label;
 }
+
 function buildPosts() {
   if (!world || typeof projects === 'undefined' || typeof ZONE === 'undefined') return;
   world.innerHTML = '';
@@ -172,12 +191,6 @@ function buildPosts() {
     }
     world.appendChild(post);
   });
-}
-
-function onScroll() {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  target = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-  if (target > 0.02 && hint) hint.style.opacity = '0';
 }
 
 function showCard(i) {
@@ -213,15 +226,63 @@ function showCard(i) {
   card.classList.add('show');
 }
 
+// LÓGICA DE ACTUALIZACIÓN DINÁMICA DE ENTRADAS Y FÍSICAS
+function updateMovement() {
+    const speed = 16; // Velocidad de avance horizontal del nivel
+
+    // 1. Movimiento Horizontal
+    if (keys.Right) {
+        virtualScrollY = Math.min(maxScrollValue, virtualScrollY + speed);
+    }
+    if (keys.Left) {
+        virtualScrollY = Math.max(0, virtualScrollY - speed);
+    }
+
+    // 2. Mecánica de Salto y Gravedad (Consistente y unificada)
+    if (keys.Up && !physics.isJumping) {
+        physics.vy =- physics.jumpImpulse; // Reducimos ligeramente el impulso inicial (antes 15) para controlar la parábola
+        physics.isJumping = true;
+    }
+
+    if (physics.isJumping) {
+        // Ajustamos la gravedad a 0.55 (antes 0.7) para que el personaje flote de forma 
+        // más natural y compense el retraso visual del movimiento de cámara (lerp)
+        physics.vy += physics.gravity; 
+        physics.y -= physics.vy;
+
+        // Comprobación de colisión con el suelo estable
+        if (physics.y <= 0) {
+            physics.y = 0;
+            physics.vy = 0;
+            physics.isJumping = false;
+        }
+    }
+
+    // Sincronizar el target con el avance virtual seguro
+    target = maxScrollValue > 0 ? virtualScrollY / maxScrollValue : 0;
+    
+    if (target > 0.02 && hint) hint.style.opacity = '0';
+
+    // 3. Aplicar la posición del salto usando 'current' en lugar de un cambio instantáneo
+    if (character) {
+        // Al aplicar la elevación con un pequeño suavizado o multiplicándola limpiamente,
+        // la GPU empareja perfectamente el movimiento vertical con el horizontal del parallax.
+        character.style.transform = `translateX(-50%) translateY(${-physics.y}px)`;
+    }
+}
+
 function loop() {
+  // Procesamos la física y inputs en cada ciclo del frame
+  updateMovement();
+
   current += (target - current) * (reduceMotion ? 1 : 0.09);
   const p = current;
 
-  // 1. Mover capas del mundo (Valores ajustados para dar un efecto de lejanía mas realista)
+  // 1. Mover capas del mundo
   if (world) world.style.transform = `translateX(${-p * worldTravel}px)`;
-  if (far) far.style.transform = `translateX(${-p * worldTravel * 0.12}px)`; // Más lento (alejado)
-  if (mid) mid.style.transform = `translateX(${-p * worldTravel * 0.35}px)`; // Velocidad media
-  if (close) close.style.transform = `translateX(${-p * worldTravel * 0.68}px)`; // 🌟 Más rápido (cercano)
+  if (far) far.style.transform = `translateX(${-p * worldTravel * 0.12}px)`;
+  if (mid) mid.style.transform = `translateX(${-p * worldTravel * 0.35}px)`;
+  if (close) close.style.transform = `translateX(${-p * worldTravel * 0.68}px)`;
   if (bar) bar.style.transform = `scaleX(${p})`;
 
   // 2. Evaluar estados de movimiento
@@ -255,34 +316,68 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+/* --- CAPTURA DE TECLADO (WASD / FLECHAS / ESPACIO) --- */
+window.addEventListener('keydown', e => {
+    if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = true;
+    if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = true;
+    if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) {
+        keys.Up = true;
+        e.preventDefault(); // Evita scroll nativo con la barra espaciadora
+    }
+});
+
+window.addEventListener('keyup', e => {
+    if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.Left = false;
+    if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.Right = false;
+    if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) keys.Up = false;
+});
+
+/* --- CONFIGURACIÓN DE LA CRUCETA VISUAL (MÓVIL / CLICS) --- */
+const setupDpad = () => {
+    const btnUp = document.getElementById('pad-up');
+    const btnLeft = document.getElementById('pad-left');
+    const btnRight = document.getElementById('pad-right');
+
+    if(!btnUp || !btnLeft || !btnRight) return;
+
+    const bindKey = (el, action) => {
+        el.addEventListener('mousedown', () => keys[action] = true);
+        el.addEventListener('mouseup', () => keys[action] = false);
+        el.addEventListener('mouseleave', () => keys[action] = false);
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[action] = true; });
+        el.addEventListener('touchend', () => keys[action] = false);
+    };
+
+    bindKey(btnUp, 'Up');
+    bindKey(btnLeft, 'Left');
+    bindKey(btnRight, 'Right');
+};
+
 /* --- INTRO SEGURO A PRUEBA DE ERRORES --- */
 const startBtn = document.getElementById('start');
 const introEl = document.getElementById('intro');
 
 if (startBtn && introEl) {
-  console.log("🎯 Botón de inicio e intro encontrados. Añadiendo evento click.");
   startBtn.addEventListener('click', () => {
-    console.log("¡Click detectado! Ocultando intro...");
     introEl.style.display = 'none';
     introEl.classList.add('hide');
     layout();
+    virtualScrollY = 0; // Inicializa posición de nivel
   });
-} else {
-  console.error("❌ ERROR CRÍTICO HTML: No existe un elemento con id='start' o id='intro' en tu HTML.");
 }
 
 const toEndBtn = document.getElementById('toEnd');
 if (toEndBtn) {
   toEndBtn.addEventListener('click', e => {
     e.preventDefault();
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    virtualScrollY = maxScrollValue; // Salto instantáneo por software al final
   });
 }
 
-window.addEventListener('scroll', onScroll, { passive: true });
-window.addEventListener('resize', () => { layout(); onScroll(); });
+// Deshabilitamos la escucha nativa del scroll del navegador para controlar el flujo por inputs
+window.addEventListener('resize', () => { layout(); });
 
 // Inicialización inicial limpia
 layout();
-onScroll();
+setupDpad();
 requestAnimationFrame(loop);
