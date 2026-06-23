@@ -53,9 +53,9 @@ const projects = [
     },
     {
         zone: "cv", tag: "CV", title: "Adrián Gómez-Lobo Núñez",
-        meta: "Currículum Vitae", img: "", /* Añade aquí una portada o déjalo vacío */
-        desc: "Puedes descargar mi historial profesional completo en formato PDF pulsando el botón de abajo.",
-        links: [{ t: "Descargar CV", u: "assets/Adrian_Gomez_Lobo_CV.pdf" }] /* Ajusta la ruta de tu PDF */
+        meta: "Currículum Vitae", img: "assets/videojuegos/Portada_CV.png", /* Añade aquí una portada o déjalo vacío */
+        desc: "Puedes ver y descargar mi historial profesional completo en formato PDF pulsando el botón de abajo.",
+        links: [{ t: "Ver CV", u: "assets/Adrian_Gomez_Lobo_CV.pdf" }] /* Ajusta la ruta de tu PDF */
     }
 ];
 

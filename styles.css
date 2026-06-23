@@ -770,3 +770,69 @@ body {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
 }
+/* =======================================================================
+   ENLACES RÁPIDOS DE LA INTRO (ICONOS MÁS GRANDES)
+   ======================================================================= */
+.intro-links {
+    display: flex;
+    justify-content: center;
+    gap: 36px;         /* Mayor separación para que respiren bien */
+    margin-top: 35px;  /* Más espacio debajo del botón */
+    margin-bottom: 10px;
+}
+
+.intro-links a {
+    color: rgba(255, 255, 255, 0.5); 
+    font-size: 38px;                 /* 🌟 ¡Casi el doble de grandes! (Antes 24px) */
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1), 
+                color 0.2s ease,
+                filter 0.2s ease;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+}
+.intro-links a.link-itchio {
+    width: 38px;
+    height: 38px;
+    /* Inyectamos el SVG oficial de Itch.io como máscara de color */
+    background-color: rgba(255, 255, 255, 0.5);
+    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M36.1 129.1c-14.6 4.7-25.7 16.8-29.4 32.1-1.6 6.5-1.7 14.5-1.7 101v93.2l3 7.8c6 15.6 19.3 26.9 35.8 30.4l7.2 1.5H461l7.2-1.5c16.5-3.5 29.8-14.8 35.8-30.4l3-7.8V262.2c0-86.5-.1-94.5-1.7-101-3.7-15.3-14.8-27.4-29.4-32.1l-7.7-2.5L256 181.7 43.8 126.6l-7.7 2.5zM176 256c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm160 0c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48z'/></svg>") no-repeat center/contain;
+    -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M36.1 129.1c-14.6 4.7-25.7 16.8-29.4 32.1-1.6 6.5-1.7 14.5-1.7 101v93.2l3 7.8c6 15.6 19.3 26.9 35.8 30.4l7.2 1.5H461l7.2-1.5c16.5-3.5 29.8-14.8 35.8-30.4l3-7.8V262.2c0-86.5-.1-94.5-1.7-101-3.7-15.3-14.8-27.4-29.4-32.1l-7.7-2.5L256 181.7 43.8 126.6l-7.7 2.5zM176 256c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm160 0c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48z'/></svg>") no-repeat center/contain;
+    
+    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1), 
+                background-color 0.2s ease, 
+                filter 0.2s ease;
+}
+
+/* 🌟 Actualizamos el estado Hover específico para esta clase */
+.intro-links a.link-itchio:hover {
+    background-color: #fa5c5c; /* Pasa a color coral/rojo de itch.io */
+    filter: drop-shadow(0 0 12px rgba(250, 92, 92, 0.8));
+    transform: scale(1.25) translateY(-4px);
+}
+
+/* Efectos visuales interactivos al pasar el cursor (Hover) */
+.intro-links a:hover {
+    transform: scale(1.25) translateY(-4px); /* Se agrandan y flotan un pelo hacia arriba */
+}
+
+/* Colores neón personalizados para cada red */
+.intro-links a[title*="CV"]:hover {
+    color: #ff4a4a; 
+    filter: drop-shadow(0 0 12px rgba(255, 74, 74, 0.8));
+}
+
+.intro-links a[title*="Correo"]:hover {
+    color: #ea4335; 
+    filter: drop-shadow(0 0 12px rgba(234, 67, 53, 0.8));
+}
+
+.intro-links a[title*="LinkedIn"]:hover {
+    color: #00a0f0; /* Un azul un poco más brillante para que destaque en el fondo oscuro */
+    filter: drop-shadow(0 0 12px rgba(0, 160, 240, 0.8));
+}
+
+.intro-links a[title*="Itch.io"]:hover {
+    color: #fa5c5c; 
+    filter: drop-shadow(0 0 12px rgba(250, 92, 92, 0.8));
+}

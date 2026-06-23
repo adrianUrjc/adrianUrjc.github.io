@@ -16,6 +16,8 @@
 
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/cards.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -23,8 +25,17 @@
   <div id="intro">
     <div class="sub">Game Developer · Portfolio</div>
     <h1><br><span>Adrián Gómez-Lobo Núñez</span></h1>
+    
     <button id="start">▶ Empezar nivel</button>
-    <div class="sub" style="opacity:.5; font-size:11px">Desplázate para avanzar</div>
+
+    <div class="intro-links">
+      <a href="assets/Adrian_Gomez_Lobo_CV.pdf" target="_blank" title="Ver CV (PDF)"><i class="fa-solid fa-file-pdf"></i></a>
+      <a href="mailto:adrian.gomezlobo@gmail.com" title="Contacto por Correo"><i class="fa-solid fa-envelope"></i></a>
+      <a href="https://www.linkedin.com/in/adri%C3%A1n-gomez-lobo-97b89a2ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      <a href="https://drakon04.itch.io/" target="_blank" title="Itch.io" class="link-itchio"></a>
+    </div>
+
+    <div class="sub" style="opacity:.5; font-size:11px; margin-top: 20px;">Desplázate para avanzar</div>
   </div>
 
   <div id="stage" data-zone="videojuegos">
@@ -39,7 +50,7 @@
       <div class="ground g-row-1"></div>
       <div class="ground g-row-2"></div>
       <div class="ground g-row-3"></div>
-      </div>
+    </div>
 
     <div id="character">
       <canvas class="idle"></canvas>
@@ -70,7 +81,7 @@
     </div>
 
     <div class="hint">
-      <span class="key">◀ / ▶</span> o <span class="key">A / D</span> Moverse · 
+      <span class="key">◀ / ▶</span> o <span class="key">A / D</span> Moverse ·
       <span class="key">▲</span> o <span class="key">Espacio</span> Saltar
     </div>
 
@@ -90,6 +101,7 @@
     </div>
 
   </div>
+  
   <div id="scroll-spacer"></div>
 
   <script src="projects.js"></script>
