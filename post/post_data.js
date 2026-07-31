@@ -43,6 +43,11 @@ const postsData = [
       <p>
         Unity cuenta de forma nativa con una herramienta para rellenar un grid 2D. Sin embargo, no tiene sistemas avanzados de relleno de casillas como por ejemplo los que podemos ver en <em>Super Mario Maker</em>.
       </p>
+        <!-- FOTO SM -->
+      <figure class="post-img-container">
+        <img src="./references/tilepainter/SuperMarioMakerForNintendo3DS_MrEraser.gif" alt="Primeros resultados del Tile Painter" class="post-img">
+        <figcaption>Grid del Super Mario Maker</figcaption>
+      </figure>
       <p>
         Así que se me ocurrió la idea de montar un sistema por mi cuenta. Y bueno... los primeros resultados no fueron precisamente los esperados.
       </p>
