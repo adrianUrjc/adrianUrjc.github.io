@@ -36,7 +36,15 @@ const projects = [
         links: [{ t: "AssetStore", u: "https://assetstore.unity.com/packages/tools/painting/group-values-load-system-371056", ghost: true }]
     },
 
-    // ----- ZONA 3: CONCEPT -----
+    // ----- ZONA 3: PUBLICACIONES / DOCS ----- 🌟 NUEVO CHECKPOINT
+    {
+        zone: "publicaciones", tag: "DOCS", title: "Publicaciones & Artículos",
+        meta: "Documentación Técnica · Unity", img: "assets/videojuegos/PortadaPublicaciones.png",
+        desc: "Documentación técnica, artículos sobre arquitectura de software en Unity y guías del desarrollo de herramientas.",
+        links: [{ t: "📖 Leer Publicaciones", u: "post/post.html" }]
+    },
+
+    // ----- ZONA 4: CONCEPT -----
     {
         zone: "concept", tag: "Galería", title: "Concept Art / Prototipos",
         meta: "Diseño · Prototipado", img: "assets/videojuegos/PortadaGaleria.png",
@@ -44,25 +52,29 @@ const projects = [
         links: [{ t: "Ver", u: "gallery.html" }]
     },
 
-    // ----- ZONA 4: DESCARGAR CV -----
+    // ----- ZONA 5: DESCARGAR CV -----
     {
         zone: "cv", tag: "Contacto", title: "Adrián Gómez-Lobo Núñez",
-        meta: "Correo Electrónico", img: "assets/videojuegos/PortadaContacto.png", /* Añade aquí una portada o déjalo vacío */
+        meta: "Correo Electrónico", img: "assets/videojuegos/PortadaContacto.png",
         desc: "¿Te interesa mi perfil para tu equipo o proyecto? Puedes contactar conmigo pulsando el botón de abajo.",
         links: [{ t: "Contactar", u: "https://www.linkedin.com/in/adri%C3%A1n-gomez-lobo-97b89a2ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" }] 
     },
     {
         zone: "cv", tag: "CV", title: "Adrián Gómez-Lobo Núñez",
-        meta: "Currículum Vitae", img: "assets/videojuegos/Portada_CV.png", /* Añade aquí una portada o déjalo vacío */
+        meta: "Currículum Vitae", img: "assets/videojuegos/Portada_CV.png",
         desc: "Puedes ver y descargar mi historial profesional completo en formato PDF pulsando el botón de abajo.",
-        links: [{ t: "Ver CV", u: "assets/Adrian_Gomez_Lobo_CV.pdf" }] /* Ajusta la ruta de tu PDF */
+        links: [
+            { t: "👁️ Ver CV", u: "assets/Adrian_Gomez_Lobo_CV.pdf" },
+            { t: "📥 Descargar CV", u: "assets/Adrian_Gomez_Lobo_CV.pdf" }
+        ]
     }
 ];
 
-/* Configuración de las 4 Zonas del HUD (Colores y Textos) */
+/* Configuración de las Zonas del HUD (Colores y Textos) */
 const ZONE = {
     videojuegos: { a: "--z1-a", b: "--z1-b", label: "Videojuegos" },
     unity: { a: "--z2-a", b: "--z2-b", label: "Herramientas Unity" },
+    publicaciones: { a: "--z2-a", b: "--z3-b", label: "Publicaciones" }, /* 🌟 Zona Publicaciones agregada */
     concept: { a: "--z3-a", b: "--z3-b", label: "Galería" },
-    cv: { a: "--z1-a", b: "--z3-b", label: "Final / CV" } /* Colores mezclados o personalizados */
+    cv: { a: "--z1-a", b: "--z3-b", label: "Final / CV" }
 };

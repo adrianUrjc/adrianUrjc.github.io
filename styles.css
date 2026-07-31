@@ -460,6 +460,41 @@ body {
     outline-offset: 3px;
 }
 
+/* Contenedor para alinear los botones principales */
+.intro-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* Estilo del botón secundario de Publicaciones */
+.secondary-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(4px);
+}
+
+.secondary-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+    /* Tono azul alineado con el post.css */
+    border-color: #3b82f6;
+    color: #60a5fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
 /* =======================================================================
    CONTROLES TÁCTILES MÓVILES (D-PAD & ACCIÓN)
    ======================================================================= */
@@ -543,64 +578,69 @@ body {
         gap: 12px;
     }
 
-   /* =======================================================================
+    /* =======================================================================
    CARRUSEL DE TARJETAS (CON ANIMACIONES Y MÁSCARA DE DEGRADADO)
    ======================================================================= */
 
-/* Contenedor principal */
-.card-container {
-    position: fixed;
-    right: -100px; /* Empezamos un poco más hacia afuera */
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 12;
-    display: flex;
-    gap: 20px; /* Reducimos un poco el gap para que la preview se acople mejor */
-    pointer-events: none;
-    opacity: 0;
-    /* Transición suave para cuando aparece todo el contenedor */
-    transition: right 0.55s cubic-bezier(.2, .8, .2, 1), opacity 0.5s ease;
-}
+    /* Contenedor principal */
+    .card-container {
+        position: fixed;
+        right: -100px;
+        /* Empezamos un poco más hacia afuera */
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 12;
+        display: flex;
+        gap: 20px;
+        /* Reducimos un poco el gap para que la preview se acople mejor */
+        pointer-events: none;
+        opacity: 0;
+        /* Transición suave para cuando aparece todo el contenedor */
+        transition: right 0.55s cubic-bezier(.2, .8, .2, 1), opacity 0.5s ease;
+    }
 
-/* Cuando el contenedor se activa (Personaje cerca de un poste) */
-.card-container.show {
-    opacity: 1;
-    right: 2%; /* Lo pegamos más a la derecha para ganar espacio de juego */
-    pointer-events: auto;
-}
+    /* Cuando el contenedor se activa (Personaje cerca de un poste) */
+    .card-container.show {
+        opacity: 1;
+        right: 2%;
+        /* Lo pegamos más a la derecha para ganar espacio de juego */
+        pointer-events: auto;
+    }
 
-/* La tarjeta individual e interiores */
-.card {
-    width: min(420px, 75vw);
-    background: rgba(16, 12, 28, 0.88);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 18px;
-    overflow: hidden;
-    flex-shrink: 0; 
-    opacity: 0;
-    transform: translateX(50px) scale(0.95);
-    /* Recuperamos la animación de interpolación elástica original */
-    transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), opacity 0.4s ease;
-}
+    /* La tarjeta individual e interiores */
+    .card {
+        width: min(420px, 75vw);
+        background: rgba(16, 12, 28, 0.88);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        overflow: hidden;
+        flex-shrink: 0;
+        opacity: 0;
+        transform: translateX(50px) scale(0.95);
+        /* Recuperamos la animación de interpolación elástica original */
+        transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1), opacity 0.4s ease;
+    }
 
-/* ANIMACIÓN: Cuando la tarjeta se activa de verdad */
-.card.show {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-}
+    /* ANIMACIÓN: Cuando la tarjeta se activa de verdad */
+    .card.show {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 
-/* 🌟 LA PREVIEW SIGUIENTE (Cortada a la mitad con degradado de opacidad) */
-.card.preview-next {
-    opacity: 0.6 !important; /* Subimos la opacidad base porque el degradado ya la suaviza */
-    transform: translateX(-40px) scale(0.9) !important; /* La encajamos un poco por debajo de la principal */
-    filter: blur(1px) grayscale(30%);
-    pointer-events: none;
-    
-    /* ✂️ MÁSCARA: Izquierda alfa=1 (sólido) hasta el 20%, derecha alfa=0 (transparente) en el 70% */
-    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
-    mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
-}
+    /* 🌟 LA PREVIEW SIGUIENTE (Cortada a la mitad con degradado de opacidad) */
+    .card.preview-next {
+        opacity: 0.6 !important;
+        /* Subimos la opacidad base porque el degradado ya la suaviza */
+        transform: translateX(-40px) scale(0.9) !important;
+        /* La encajamos un poco por debajo de la principal */
+        filter: blur(1px) grayscale(30%);
+        pointer-events: none;
+
+        /* ✂️ MÁSCARA: Izquierda alfa=1 (sólido) hasta el 20%, derecha alfa=0 (transparente) en el 70% */
+        -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 25%, rgba(0, 0, 0, 0) 75%);
+        mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 25%, rgba(0, 0, 0, 0) 75%);
+    }
 
     .pad-btn {
         width: 52px;
@@ -620,18 +660,20 @@ body {
         transition: opacity .2s linear;
     }
 }
+
 /* =======================================================================
    ENTIDADES: MONEDAS (PREPARADAS PARA SPRITE SHEET)
    ======================================================================= */
 .coin {
     position: absolute;
-    width: 32px;  /* Ajusta al tamaño exacto de un frame de tu futura sheet (ej: 32x32) */
+    width: 32px;
+    /* Ajusta al tamaño exacto de un frame de tu futura sheet (ej: 32x32) */
     height: 32px;
     z-index: 5;
-    
+
     /* Centramos la moneda respecto a la coordenada X de Javascript */
     transform: translateX(-50%);
-    
+
     /* 🎨 Marcador temporal (Borra estas 4 líneas cuando metas tu Sprite Sheet) */
     background: #ffcc00;
     border-radius: 50%;
@@ -650,8 +692,8 @@ body {
 
     /* Animación temporal de flotado e intro elástica */
     animation: coinFloat 1.8s ease-in-out infinite;
-    transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1), 
-                opacity 0.2s ease;
+    transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1),
+        opacity 0.2s ease;
 }
 
 /* Estado cuando Uncle Belly colisiona con ella */
@@ -666,20 +708,30 @@ body {
 
 /* 1. Movimiento flotante arriba y abajo */
 @keyframes coinFloat {
-    0%, 100% { 
-        margin-bottom: 0px; 
+
+    0%,
+    100% {
+        margin-bottom: 0px;
     }
-    50% { 
-        margin-bottom: 12px; /* Flota 12px hacia arriba en el aire */
+
+    50% {
+        margin-bottom: 12px;
+        /* Flota 12px hacia arriba en el aire */
     }
 }
 
 /* 2. Animación del Sprite Sheet (Déjala lista para cuando uses tu tira de frames)
    Cambia '100%' al desplazamiento total negativo de tu imagen (ej: -256px si son 8 frames de 32px) */
 @keyframes coinAnimate {
-    from { background-position: 0px 0px; }
-    to { background-position: -256px 0px; } 
+    from {
+        background-position: 0px 0px;
+    }
+
+    to {
+        background-position: -256px 0px;
+    }
 }
+
 /* =======================================================================
    VENTANA EMERGENTE: FIN DE NIVEL (POP-UP)
    ======================================================================= */
@@ -689,9 +741,12 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(10, 8, 20, 0.9); /* Fondo oscuro translúcido */
-    backdrop-filter: blur(6px);       /* Desenfoque del fondo */
-    z-index: 99999;                   /* Por encima de absolutamente todo */
+    background: rgba(10, 8, 20, 0.9);
+    /* Fondo oscuro translúcido */
+    backdrop-filter: blur(6px);
+    /* Desenfoque del fondo */
+    z-index: 99999;
+    /* Por encima de absolutamente todo */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -701,7 +756,8 @@ body {
 
 #game-clear-msg .msg-content {
     background: #161322;
-    border: 3px solid #ffcc00;        /* Borde dorado de victoria */
+    border: 3px solid #ffcc00;
+    /* Borde dorado de victoria */
     padding: 40px 30px;
     border-radius: 16px;
     text-align: center;
@@ -759,38 +815,54 @@ body {
    ANIMACIONES DEL POP-UP
    ======================================================================= */
 @keyframes fadeInClear {
-    to { opacity: 1; }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes popInClear {
-    to { transform: scale(1); }
+    to {
+        transform: scale(1);
+    }
 }
 
 @keyframes floatTrophy {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
+
 /* =======================================================================
    ENLACES RÁPIDOS DE LA INTRO (ICONOS MÁS GRANDES)
    ======================================================================= */
 .intro-links {
     display: flex;
     justify-content: center;
-    gap: 36px;         /* Mayor separación para que respiren bien */
-    margin-top: 35px;  /* Más espacio debajo del botón */
+    gap: 36px;
+    /* Mayor separación para que respiren bien */
+    margin-top: 35px;
+    /* Más espacio debajo del botón */
     margin-bottom: 10px;
 }
 
 .intro-links a {
-    color: rgba(255, 255, 255, 0.5); 
-    font-size: 38px;                 /* 🌟 ¡Casi el doble de grandes! (Antes 24px) */
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 38px;
+    /* 🌟 ¡Casi el doble de grandes! (Antes 24px) */
     text-decoration: none;
     display: inline-block;
-    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1), 
-                color 0.2s ease,
-                filter 0.2s ease;
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1),
+        color 0.2s ease,
+        filter 0.2s ease;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
 }
+
 .intro-links a.link-itchio {
     width: 38px;
     height: 38px;
@@ -798,41 +870,44 @@ body {
     background-color: rgba(255, 255, 255, 0.5);
     mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M36.1 129.1c-14.6 4.7-25.7 16.8-29.4 32.1-1.6 6.5-1.7 14.5-1.7 101v93.2l3 7.8c6 15.6 19.3 26.9 35.8 30.4l7.2 1.5H461l7.2-1.5c16.5-3.5 29.8-14.8 35.8-30.4l3-7.8V262.2c0-86.5-.1-94.5-1.7-101-3.7-15.3-14.8-27.4-29.4-32.1l-7.7-2.5L256 181.7 43.8 126.6l-7.7 2.5zM176 256c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm160 0c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48z'/></svg>") no-repeat center/contain;
     -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M36.1 129.1c-14.6 4.7-25.7 16.8-29.4 32.1-1.6 6.5-1.7 14.5-1.7 101v93.2l3 7.8c6 15.6 19.3 26.9 35.8 30.4l7.2 1.5H461l7.2-1.5c16.5-3.5 29.8-14.8 35.8-30.4l3-7.8V262.2c0-86.5-.1-94.5-1.7-101-3.7-15.3-14.8-27.4-29.4-32.1l-7.7-2.5L256 181.7 43.8 126.6l-7.7 2.5zM176 256c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm160 0c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48z'/></svg>") no-repeat center/contain;
-    
-    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1), 
-                background-color 0.2s ease, 
-                filter 0.2s ease;
+
+    transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1),
+        background-color 0.2s ease,
+        filter 0.2s ease;
 }
 
 /* 🌟 Actualizamos el estado Hover específico para esta clase */
 .intro-links a.link-itchio:hover {
-    background-color: #fa5c5c; /* Pasa a color coral/rojo de itch.io */
+    background-color: #fa5c5c;
+    /* Pasa a color coral/rojo de itch.io */
     filter: drop-shadow(0 0 12px rgba(250, 92, 92, 0.8));
     transform: scale(1.25) translateY(-4px);
 }
 
 /* Efectos visuales interactivos al pasar el cursor (Hover) */
 .intro-links a:hover {
-    transform: scale(1.25) translateY(-4px); /* Se agrandan y flotan un pelo hacia arriba */
+    transform: scale(1.25) translateY(-4px);
+    /* Se agrandan y flotan un pelo hacia arriba */
 }
 
 /* Colores neón personalizados para cada red */
 .intro-links a[title*="CV"]:hover {
-    color: #ff4a4a; 
+    color: #ff4a4a;
     filter: drop-shadow(0 0 12px rgba(255, 74, 74, 0.8));
 }
 
 .intro-links a[title*="Correo"]:hover {
-    color: #ea4335; 
+    color: #ea4335;
     filter: drop-shadow(0 0 12px rgba(234, 67, 53, 0.8));
 }
 
 .intro-links a[title*="LinkedIn"]:hover {
-    color: #00a0f0; /* Un azul un poco más brillante para que destaque en el fondo oscuro */
+    color: #00a0f0;
+    /* Un azul un poco más brillante para que destaque en el fondo oscuro */
     filter: drop-shadow(0 0 12px rgba(0, 160, 240, 0.8));
 }
 
 .intro-links a[title*="Itch.io"]:hover {
-    color: #fa5c5c; 
+    color: #fa5c5c;
     filter: drop-shadow(0 0 12px rgba(250, 92, 92, 0.8));
 }

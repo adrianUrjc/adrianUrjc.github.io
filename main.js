@@ -218,7 +218,6 @@ function buildPosts() {
   if (!world || typeof projects === 'undefined' || typeof ZONE === 'undefined') return;
 
   // 1. 🧹 LIMPIEZA ABSOLUTA DE POSTES Y MONEDAS PREVIAS
-  // Usamos un bucle while para asegurarnos de que no quede ni un solo clon en el DOM
   while (world.querySelector('.post')) {
     world.querySelector('.post').remove();
   }
@@ -226,11 +225,25 @@ function buildPosts() {
     world.querySelector('.coin').remove();
   }
 
-  // 2. Renderizar Postes (Tu lógica se queda igual)
+  // 🌟 Obtenemos las claves de las zonas en orden ("videojuegos", "unity", "publicaciones", "concept", "cv")
+  const zoneKeys = Object.keys(ZONE);
+  const totalZones = zoneKeys.length;
+
+  // 2. Renderizar Postes
   projects.forEach(p => {
     const post = document.createElement('div');
     post.className = 'post';
-    post.style.left = (charX + p.at * worldTravel) + 'px';
+
+    // 🌟 CÁLCULO DINÁMICO DE RESPALDO:
+    // Si 'p.at' existe, lo usa. Si no, calcula el porcentaje según el índice de su zona en ZONE.
+    let ratio = p.at;
+    if (typeof ratio === 'undefined' || ratio === null) {
+      const zIndex = zoneKeys.indexOf(p.zone);
+      ratio = zIndex !== -1 ? (zIndex / (totalZones - 1)) : 0;
+    }
+
+    post.style.left = (charX + ratio * worldTravel) + 'px';
+
     const z = ZONE[p.zone];
     if (z) {
       post.style.setProperty('--accent', `var(${z.a})`);
@@ -552,7 +565,7 @@ window.addEventListener('keyup', e => {
   if (['ArrowUp', 'w', 'W', ' '].includes(e.key)) keys.Up = false;
 });
 function calcularPosicionesProyectos() {
-  const ordenZonas = ["videojuegos", "unity", "concept", "cv"];
+  const ordenZonas = ["videojuegos", "unity","publicaciones", "concept", "cv"];
   const totalZonas = ordenZonas.length;
   const espacioPorZona = 1.0 / totalZonas; // 0.25
 

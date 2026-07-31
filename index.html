@@ -12,11 +12,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/cards.css">
-  
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -25,13 +27,21 @@
   <div id="intro">
     <div class="sub">Game Developer · Portfolio</div>
     <h1><br><span>Adrián Gómez-Lobo Núñez</span></h1>
-    
-    <button id="start">▶ Empezar nivel</button>
+
+    <div class="intro-buttons">
+      <button id="start">▶ EMPEZAR NIVEL</button>
+
+      <a href="post/post.html" id="btn-publications" class="secondary-btn">
+        📄 PUBLICACIONES / DOCS
+      </a>
+    </div>
 
     <div class="intro-links">
-      <a href="assets/Adrian_Gomez_Lobo_CV.pdf" target="_blank" title="Ver CV (PDF)"><i class="fa-solid fa-file-pdf"></i></a>
+      <a href="assets/Adrian_Gomez_Lobo_CV.pdf" target="_blank" title="Ver CV (PDF)"><i
+          class="fa-solid fa-file-pdf"></i></a>
       <a href="mailto:adrian.gomezlobo@gmail.com" title="Contacto por Correo"><i class="fa-solid fa-envelope"></i></a>
-      <a href="https://www.linkedin.com/in/adri%C3%A1n-gomez-lobo-97b89a2ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      <a href="https://www.linkedin.com/in/adri%C3%A1n-gomez-lobo-97b89a2ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+        target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
       <a href="https://drakon04.itch.io/" target="_blank" title="Itch.io" class="link-itchio"></a>
     </div>
 
@@ -75,7 +85,9 @@
 
     <div class="hud">
       <span class="name">Adrián Gómez-Lobo Núñez</span>
-      <span class="coin-counter" style="margin-left: 15px; color: #ffcc00; font-family: var(--font-mono); font-weight: bold;">🪙 <span id="coin-score">0</span>/10</span>
+      <span class="coin-counter"
+        style="margin-left: 15px; color: #ffcc00; font-family: var(--font-mono); font-weight: bold;">🪙 <span
+          id="coin-score">0</span>/10</span>
       <a id="toEnd" href="#" title="Saltar al final">CV / Contacto ⏭</a>
       <span class="zone">Inicio</span>
     </div>
@@ -101,11 +113,12 @@
     </div>
 
   </div>
-  
+
   <div id="scroll-spacer"></div>
 
   <script src="projects.js"></script>
   <script src="main.js"></script>
+
 </body>
 
 </html>
